@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/icons">
+        <file alias="stored-local.png">icons/local.png</file>
+        <file alias="stored-cloud.png">icons/cloud.png</file>
+    </qresource>
+</RCC>

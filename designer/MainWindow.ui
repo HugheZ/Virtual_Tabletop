@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VTTMainWindow</class>
+ <widget class="QMainWindow" name="VTTMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>488</width>
+    <height>341</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Virtual Tabletop</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="QLabel" name="breadcrumbs">
+      <property name="text">
+       <string>&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QListWidget" name="gamesList">
+      <property name="toolTip">
+       <string>Available boards</string>
+      </property>
+      <property name="flow">
+       <enum>QListView::LeftToRight</enum>
+      </property>
+      <property name="isWrapping" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="resizeMode">
+       <enum>QListView::Adjust</enum>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="gridSize">
+       <size>
+        <width>150</width>
+        <height>150</height>
+       </size>
+      </property>
+      <property name="itemAlignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>20</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>↑</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2" rowspan="2">
+     <widget class="QListWidget" name="openGames">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>100</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Current boards</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>488</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <widget class="QMenu" name="menuNew">
+     <property name="title">
+      <string>New</string>
+     </property>
+     <addaction name="actionGame"/>
+     <addaction name="actionGame_Collection"/>
+    </widget>
+    <addaction name="menuNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuStorage">
+    <property name="title">
+     <string>Storage</string>
+    </property>
+    <addaction name="actionSet_Firebase"/>
+    <addaction name="actionBackup_Local"/>
+    <addaction name="separator"/>
+    <addaction name="actionWipe_Local"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuStorage"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionGame">
+   <property name="text">
+    <string>Game</string>
+   </property>
+  </action>
+  <action name="actionGame_Collection">
+   <property name="text">
+    <string>Game Collection</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionSet_Firebase">
+   <property name="text">
+    <string>Set Firebase</string>
+   </property>
+  </action>
+  <action name="actionBackup_Local">
+   <property name="text">
+    <string>Backup Local</string>
+   </property>
+  </action>
+  <action name="actionWipe_Local">
+   <property name="text">
+    <string>Wipe Local</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -3,5 +3,6 @@
         <file alias="stored-local.png">icons/local.png</file>
         <file alias="stored-cloud.png">icons/cloud.png</file>
         <file alias="not-found.png">icons/not-found.png</file>
+        <file alias="collection.png">icons/collection.png</file>
     </qresource>
 </RCC>

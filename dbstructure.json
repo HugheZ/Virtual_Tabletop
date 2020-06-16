@@ -1,0 +1,18 @@
+{
+    "collection": {
+        "type":"collection",
+        "name": "string",
+        "games":[
+            {"game":"goes here"},
+            {"continued...":"..."}
+        ]
+    },
+    "game": {
+        "type":"game",
+        "name":"string",
+        "width":"number (inches)",
+        "height":"number (inches)",
+        "board":"string (url to storage)",
+        "preview_image":"string (url to storage)"
+    }
+}

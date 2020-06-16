@@ -1,0 +1,4 @@
+#don't track API key, which depends on the user's set up firebase
+key.json
+#don't track user credential JSON
+credentials.json

@@ -16,8 +16,9 @@ class Connector:
             self.__creds = json.load(open(cred))
 
         #set up current data and location in DB for local
-        self.__data = []
+        self.__data = None
         self.__location = ''
+        self.__locationname = ''
 
         #configure pyrebase link
         self.__fb = pyrebase.initialize_app(self.__config)
@@ -27,3 +28,30 @@ class Connector:
             self.__user = self.__auth.sign_in_with_email_and_password(self.__creds['email'], self.__creds['password'])
         
         self.__db = self.__fb.database()
+
+        #get base data TODO
+    
+    def _getLevel(self):
+        '''Gets the current level in the database and fills underlying data field'''
+        data = self.__db.child(self.__location).get().val()
+
+        #parse the data (must be as collection)
+        self.__data = GameCollection.GameCollection(self.__locationname, data)
+
+    def goUp(self):
+        '''Goes up in the DB hierarchy'''
+        #if we are at base, ignore, else strip the last "/~~~/games" from the location
+        if self.__location != '':
+            loc = self.__location.split('/')
+            #NOTE, below will not break on python 3.7 as it treats it as an iterable from beginning until not less than 2 before end, so instantly stops
+            loc = loc[:-2]
+            self.__location = '/'.join(loc)
+            self.__locationname = '' if len(loc) < 1 else loc[-1]
+            self._getLevel()
+
+
+    def goDown(self, name):
+        '''Goes down in the DB hierarchy as given by new level "name"'''
+        self.__location += name + '/games'
+        self.__locationname = name
+        self._getLevel()

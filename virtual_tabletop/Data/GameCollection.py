@@ -1,4 +1,6 @@
 from .Game import Game
+import pyrebase
+from collections import OrderedDict
 
 class GameCollection():
     '''
@@ -14,6 +16,9 @@ class GameCollection():
         self.name = name
         self.games = []
 
+        if type(games) == dict or type(games) == OrderedDict:
+            games = games.items()
+
         for game in games:
             self.addGame(game)
     
@@ -22,16 +27,16 @@ class GameCollection():
                 self.games.append(game)
         elif type(game) == GameCollection:
             self.games.append(GameCollection)
-        elif type(game) == dict:
-            if game['type'] == 'game':
-                self.games.append(Game(game.get('name'),
-                    game.get('width'),
-                    game.get('height'),
-                    game.get('preview_image'),
-                    game.get('board')))
-            elif game['type'] == 'collection':
-                self.games.append(GameCollection(game.get('name'),
-                    game.get('games')))
+        elif type(game) == tuple:
+            if game[1]['type'] == 'game':
+                self.games.append(Game(game[0],
+                    game[1].get('width'),
+                    game[1].get('height'),
+                    game[1].get('preview_image'),
+                    game[1].get('board')))
+            elif game[1]['type'] == 'collection':
+                self.games.append(GameCollection(game[0],
+                    game[1].get('games')))
             else:
                 raise TypeError("Invalid game for game collection:\nExpected Game or GameCollection JSON, but the one provided could not be parsed. Perhaps it is malformatted.")
         else:

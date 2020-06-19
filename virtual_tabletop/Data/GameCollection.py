@@ -64,3 +64,7 @@ class GameCollection():
             ret += str(game) + '\n'
         
         return ret + ']'
+    
+    def jsonify(self):
+        '''Returns a json representation of this game collection for saving purposes'''
+        pass

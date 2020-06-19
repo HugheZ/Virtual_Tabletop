@@ -29,7 +29,8 @@ class Connector:
         
         self.__db = self.__fb.database()
 
-        #get base data TODO
+        #get base data
+        self._getLevel()
     
     def _getLevel(self):
         '''Gets the current level in the database and fills underlying data field'''
@@ -55,3 +56,21 @@ class Connector:
         self.__location += name + '/games'
         self.__locationname = name
         self._getLevel()
+    
+    def add(self, toAdd, location = None):
+        '''Adds a game or game collection to the given location:\n
+        toAdd: a game or game collection to put into the DB\n
+        location: the location to add to, defaults to current location
+        '''
+        #default location
+        if location is None:
+            location = self.__location
+        
+        #parse for valid object
+        if type(toAdd) not in [Game, GameCollection]:
+            raise TypeError('Invalid object type for DB save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+
+        #good to go, jsonify and parse
+        self.__db.child(self.__location).child(toAdd.name).set(toAdd.jsonify())
+
+

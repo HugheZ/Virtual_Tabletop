@@ -44,5 +44,9 @@ class Game():
             '✓' if self.local else 'X',
             '✓' if self.online else 'X' 
         )
+    
+    def jsonify(self):
+        '''Returns a json representation of this game for saving purposes'''
+        pass
 
         

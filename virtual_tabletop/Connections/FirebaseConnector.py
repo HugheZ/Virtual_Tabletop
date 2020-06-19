@@ -4,16 +4,21 @@ from virtual_tabletop.Data import Game, GameCollection
 class Connector:
     '''A simple connector to Firestore via the Pyrebase wrapper API found: https://github.com/thisbejim/Pyrebase'''
 
-    def __init__(self, key, cred = None, savedir = os.path.join('.','localboards')):
+    def __init__(self, key, cred = None, email=None, password=None, savedir = os.path.join('.','localboards')):
         '''Init method:\n
             key: API key JSON for your specific firebase instance\n
             cred: credentials JSON for your sign-in info, None by default\n
-            For dev purposes, credentials will be stored on first-time login and in plaintext. This should be changed to fit with Pyrebase login while preserving persistence in login state
+            For dev purposes, credentials will be stored in plaintext on user request. This should be changed to fit with Pyrebase login while preserving persistence in login state\n
+            email: backup string email to sign in\n
+            password: backup string password to sign in\n
+            savedir: the location to save files to, defaults to a folder in this dir called localboards
         '''
         self.__config = json.load(open(key))
         self.__creds = None
         if cred:
             self.__creds = json.load(open(cred))
+        elif email and password:
+            self.__creds = {"email": email, "password": password}
 
         #set up current data and location in DB for local
         self.__data = None

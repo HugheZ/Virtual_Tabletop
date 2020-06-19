@@ -41,3 +41,26 @@ class GameCollection():
                 raise TypeError("Invalid game for game collection:\nExpected Game or GameCollection JSON, but the one provided could not be parsed. Perhaps it is malformatted.")
         else:
             raise TypeError("Invalid game for game collection:\nExpected {0} or {1} but received {2}".format(Game, GameCollection, type(game)))
+    
+    def __len__(self):
+        '''Simple length function, returns length of games list'''
+        return len(self.games)
+    
+    def __iter__(self):
+        '''Simple iterator function, returns the games list's iterator'''
+        return iter(self.games)
+    
+    def __str__(self):
+        '''Returns a string representation of this game collection object:\n
+        Name:
+        [
+            game
+            game
+            game
+        ]
+        '''
+        ret = self.name + ':\n[\n'
+        for game in self.games:
+            ret += str(game) + '\n'
+        
+        return ret + ']'

@@ -35,4 +35,14 @@ class Game():
     def getImage(self):
         pass
 
+    def __str__(self):
+        '''Returns a string representation of this Game object:\n
+        name: <width, height> in., local: X, online: X
+        '''
+        return '{0}: <{1}, {2}> in., local: {3}, online: {4}'.format(
+            self.name, self.width, self.height,
+            '✓' if self.local else 'X',
+            '✓' if self.online else 'X' 
+        )
+
         

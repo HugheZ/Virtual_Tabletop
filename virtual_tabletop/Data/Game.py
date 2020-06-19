@@ -28,6 +28,12 @@ class Game():
         self.__preview = None
 
         #TODO: load board if local
+
+        #TODO: local board field integration
+        self.__board_path = None
+        self.__preview_path = None
+
+        #TODO: if local, copy image to local storage
     
     def loadImage(self):
         pass
@@ -47,6 +53,13 @@ class Game():
     
     def jsonify(self):
         '''Returns a json representation of this game for saving purposes'''
-        pass
+        return {
+            "type": "game",
+            "name": self.name,
+            "width": self.width,
+            "height": self.height,
+            "board": self.board,
+            "preview_image": self.preview_image
+        }
 
         

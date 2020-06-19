@@ -28,6 +28,7 @@ class Connector:
             self.__user = self.__auth.sign_in_with_email_and_password(self.__creds['email'], self.__creds['password'])
         
         self.__db = self.__fb.database()
+        self.__storage = self.__fb.storage()
 
         #get base data
         self._getLevel()
@@ -64,13 +65,39 @@ class Connector:
         '''
         #default location
         if location is None:
-            location = self.__location
+            location = self.__location.replace('games/','')
         
         #parse for valid object
         if type(toAdd) not in [Game, GameCollection]:
             raise TypeError('Invalid object type for DB save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
 
+        #pre-iterate through to push images to DB
+        self.__upload(toAdd, location)
+
         #good to go, jsonify and parse
-        self.__db.child(self.__location).child(toAdd.name).set(toAdd.jsonify())
+        self.__db.child(location).child(toAdd.name).set(toAdd.jsonify())
+    
+    def __upload(self, toAdd, location):
+        '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n
+        toAdd: the game/game collection to add
+        location: the location to upload the board to
+        NOTE: this is a recursive method that will iterate through game collections, thus callable with collections or single games
+        '''
+        if type(toAdd) == Game:
+            #push to file storage
+            # will be path: /Collection/.../name_board.jpg + name_preview.jpg
+            #NOTE: ignoring file name as we will make our own via naming conventions above, just need extension
+            board_type = os.path.splitext(toAdd.__board_path)[1]
+            prev_type = os.path.splitext(toAdd.__preview_path)[1]
+            self.__storage.child(location).child(toAdd.name + '_board' + board_type).put(toAdd.__board_path)
+            self.__storage.child(location).child(toAdd.name + '_preview' + prev_type).put(toAdd.__board_path)
+
+        elif type(toAdd) == GameCollection:
+            #nothing to do for collections, iterate over each game with this name added to location
+            loc = location + '/' + toAdd.name
+            for game in toAdd:
+                self.__upload(game, loc)
+        else:
+            raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
 
 

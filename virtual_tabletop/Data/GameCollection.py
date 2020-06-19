@@ -67,4 +67,9 @@ class GameCollection():
     
     def jsonify(self):
         '''Returns a json representation of this game collection for saving purposes'''
-        pass
+        return {
+        "type": "collection",
+        "name": self.name,
+        "games": {game.name : game.jsonify() for game in self.games}
+        }
+        

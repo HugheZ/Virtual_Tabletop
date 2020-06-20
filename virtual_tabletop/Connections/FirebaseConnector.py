@@ -1,5 +1,6 @@
 import pyrebase, json, os
 from virtual_tabletop.Data import Game, GameCollection
+from weakref import ref, WeakMethod
 
 class Connector:
     '''A simple connector to Firestore via the Pyrebase wrapper API found: https://github.com/thisbejim/Pyrebase'''
@@ -37,6 +38,9 @@ class Connector:
 
         #get base data
         self._getLevel()
+
+        #set updators
+        self.__watchers = []
     
     def _getLevel(self):
         '''Gets the current level in the database and fills underlying data field'''
@@ -104,5 +108,53 @@ class Connector:
                 self.__upload(game, loc)
         else:
             raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+    
+    def watch(self, caller=None, callback=None):
+        '''Observer-like function that updates the currently loaded DB data. All callbacks are called immediately upon addition.\n
+        caller: the object owning the callback, used to keep track and remove watchers\n
+        callback: an optional callback to call whenever the pulled data is updated, of the form:\n
+        \tfunc( GameCollection ) → any\n
+        Returns the most up-to-date DB data as a one-time look
+        '''
+        #error out if callback and no caller or vice versa
+        if caller and not callback or callback and not caller:
+            raise ValueError('Both caller and callback must be defined for watching')
 
-
+        #try to add callback if exists, throw error if non-callable given
+        if callback and caller:
+            if callable(callback):
+                self.__watchers.append((ref(caller), WeakMethod(callback)))
+                callback(self.__data)
+            else:
+                raise TypeError('Callback given is not callable')
+        
+        #give static copy
+        return self.__data
+    
+    def __updateWatchers(self):
+        '''Updates all current data watchers. If a watcher is dead, this will remove it from this and future updates.'''
+        rmlist = []
+        for i in range(len(self.__watchers)):
+            watcher = self.__watchers[i]
+            watcher_obj = watcher[0]()
+            watcher_func = watcher[1]()
+            if watcher_obj:
+                watcher_func(self.__data)
+            else:
+                #dead reference, add to remove list
+                rmlist.append(i)
+        
+        #remove all dead watchers
+        for rm in rmlist:
+            del self.__watchers[rm]
+    
+    def unwatch(self, obj):
+        '''Removes the provided object from the watchers list, excepting if it was not present.\n
+        obj: the object to be removed from the watcher list
+        '''
+        rm = -1
+        try:
+            rm = next(x for x, val in enumerate(self.__watchers) if val[0]() == obj)
+        except Exception:
+            raise IndexError('Object to remove from watchers was not watching')
+        return rm

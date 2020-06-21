@@ -157,4 +157,4 @@ class Connector:
             rm = next(x for x, val in enumerate(self.__watchers) if val[0]() == obj)
         except Exception:
             raise IndexError('Object to remove from watchers was not watching')
-        return rm
+        return

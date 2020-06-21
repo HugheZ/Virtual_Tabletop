@@ -152,9 +152,8 @@ class Connector:
         '''Removes the provided object from the watchers list, excepting if it was not present.\n
         obj: the object to be removed from the watcher list
         '''
-        rm = -1
         try:
-            rm = next(x for x, val in enumerate(self.__watchers) if val[0]() == obj)
+            next(x for x, val in enumerate(self.__watchers) if val[0]() == obj)
         except Exception:
             raise IndexError('Object to remove from watchers was not watching')
         return

@@ -5,21 +5,14 @@ from weakref import ref, WeakMethod
 class Connector:
     '''A simple connector to Firestore via the Pyrebase wrapper API found: https://github.com/thisbejim/Pyrebase'''
 
-    def __init__(self, key, cred = None, email=None, password=None, savedir = os.path.join('.','localboards')):
+    def __init__(self, key, email=None, password=None, savedir = os.path.join('.','localboards')):
         '''Init method:\n
             key: API key JSON for your specific firebase instance\n
-            cred: credentials JSON for your sign-in info, None by default\n
-            For dev purposes, credentials will be stored in plaintext on user request. This should be changed to fit with Pyrebase login while preserving persistence in login state\n
             email: backup string email to sign in\n
             password: backup string password to sign in\n
             savedir: the location to save files to, defaults to a folder in this dir called localboards
         '''
         self.__config = json.load(open(key))
-        self.__creds = None
-        if cred:
-            self.__creds = json.load(open(cred))
-        elif email and password:
-            self.__creds = {"email": email, "password": password}
 
         #set up current data and location in DB for local
         self.__data = None
@@ -30,8 +23,9 @@ class Connector:
         self.__fb = pyrebase.initialize_app(self.__config)
         self.__auth = self.__fb.auth()
         self.__user = None 
-        if self.__creds is not None:
-            self.__user = self.__auth.sign_in_with_email_and_password(self.__creds['email'], self.__creds['password'])
+        
+        #login
+        self.login(email, password)
         
         self.__db = self.__fb.database()
         self.__storage = self.__fb.storage()
@@ -42,12 +36,23 @@ class Connector:
         #set updators
         self.__watchers = []
     
+    def login(self, email, password):
+        '''Logs into the linked DB\n
+        email: the email used to log in\n
+        password: the password used to log in
+        '''
+        if email and password:
+            self.__user = self.__auth.sign_in_with_email_and_password(email, password)
+    
     def _getLevel(self):
         '''Gets the current level in the database and fills underlying data field'''
         data = self.__db.child(self.__location).get().val()
 
         #parse the data (must be as collection)
         self.__data = GameCollection.GameCollection(self.__locationname, data)
+
+        #notify any watcher
+        self.__updateWatchers()
 
     def goUp(self):
         '''Goes up in the DB hierarchy'''

@@ -1,18 +1,24 @@
 import pyrebase, json, os
 from virtual_tabletop.Data import Game, GameCollection
 from weakref import ref, WeakMethod
+from typing import Callable, Mapping, Union, Optional
 
 class Connector:
     '''A simple connector to Firestore via the Pyrebase wrapper API found: https://github.com/thisbejim/Pyrebase'''
 
-    def __init__(self, key, email=None, password=None, savedir = os.path.join('.','localboards')):
+    def __init__(self, key: Union[str, Mapping], email: Optional[str] = None, password: Optional[str] = None, savedir: str = os.path.join('.','localboards')):
         '''Init method:\n
             key: API key JSON for your specific firebase instance\n
             email: backup string email to sign in\n
             password: backup string password to sign in\n
             savedir: the location to save files to, defaults to a folder in this dir called localboards
         '''
-        self.__config = json.load(open(key))
+
+        #get default config
+        if type(key) == str:
+            self.__config = json.load(open(key))
+        elif type(key) == Mapping:
+            self.__config == key
 
         #set up current data and location in DB for local
         self.__data = None
@@ -36,7 +42,7 @@ class Connector:
         #set updators
         self.__watchers = []
     
-    def login(self, email, password):
+    def login(self, email: str, password: str):
         '''Logs into the linked DB\n
         email: the email used to log in\n
         password: the password used to log in
@@ -66,13 +72,15 @@ class Connector:
             self._getLevel()
 
 
-    def goDown(self, name):
-        '''Goes down in the DB hierarchy as given by new level "name"'''
+    def goDown(self, name: str):
+        '''Goes down in the DB hierarchy\n
+        name: the new level to go down to
+        '''
         self.__location += name + '/games'
         self.__locationname = name
         self._getLevel()
     
-    def add(self, toAdd, location = None):
+    def add(self, toAdd: Union[Game, GameCollection], location: Optional[str] = None):
         '''Adds a game or game collection to the given location:\n
         toAdd: a game or game collection to put into the DB\n
         location: the location to add to, defaults to current location
@@ -91,7 +99,7 @@ class Connector:
         #good to go, jsonify and parse
         self.__db.child(location).child(toAdd.name).set(toAdd.jsonify())
     
-    def __upload(self, toAdd, location):
+    def __upload(self, toAdd: Union[Game, GameCollection], location: str):
         '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n
         toAdd: the game/game collection to add
         location: the location to upload the board to
@@ -114,7 +122,7 @@ class Connector:
         else:
             raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
     
-    def watch(self, caller=None, callback=None):
+    def watch(self, caller: Optional[object] = None, callback: Optional[Callable] = None):
         '''Observer-like function that updates the currently loaded DB data. All callbacks are called immediately upon addition.\n
         caller: the object owning the callback, used to keep track and remove watchers\n
         callback: an optional callback to call whenever the pulled data is updated, of the form:\n
@@ -153,7 +161,7 @@ class Connector:
         for rm in rmlist:
             del self.__watchers[rm]
     
-    def unwatch(self, obj):
+    def unwatch(self, obj: object):
         '''Removes the provided object from the watchers list, excepting if it was not present.\n
         obj: the object to be removed from the watcher list
         '''

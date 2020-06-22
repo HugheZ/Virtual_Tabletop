@@ -11,9 +11,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
 
         #temp add in some game tiles
         for i in range(6):
-            litem = QtWidgets.QListWidgetItem()
+            litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile()
-            litem.setSizeHint(t.sizeHint())
+            litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)
         

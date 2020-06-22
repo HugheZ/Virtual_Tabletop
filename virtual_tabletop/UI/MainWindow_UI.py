@@ -45,7 +45,7 @@ class Ui_VTTMainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.openGames.sizePolicy().hasHeightForWidth())
         self.openGames.setSizePolicy(sizePolicy)
-        self.openGames.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.openGames.setMaximumSize(QtCore.QSize(300, 16777215))
         self.openGames.setObjectName("openGames")
         self.gridLayout.addWidget(self.openGames, 0, 2, 2, 1)
         VTTMainWindow.setCentralWidget(self.centralwidget)

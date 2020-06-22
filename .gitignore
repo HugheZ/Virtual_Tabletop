@@ -2,6 +2,8 @@
 key.json
 #don't track user credential JSON
 credentials.json
+#don't track config file
+config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

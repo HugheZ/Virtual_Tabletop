@@ -2,32 +2,32 @@ from virtual_tabletop.Connections import FirebaseConnector
 from PyQt5 import QtWidgets
 from virtual_tabletop.UI.MainWindow import MainWindow
 from virtual_tabletop.Data.GameCollection import GameCollection
-from os import sys
+from os import sys, path
 import json
 from getpass import getpass
 
-class VT:
-    def __init__(self):
-        self.app = QtWidgets.QApplication(sys.argv)
+def launch():
+    app = QtWidgets.QApplication(sys.argv)
 
-        self.connector = FirebaseConnector.Connector(key='key.json', email=input('Email: '), password=getpass('Password: '))
+    #credentials
+    key = None
+    email = None
+    password = None
+    savedir = path.join('.','localboards')
 
-        self.window = MainWindow()
-        
-        self.data = self.connector.watch(self, self.getData)
+    #open configuration file
+    if path.exists('config.json'):
+        config = json.load(open('config.json'))
+        key = config.get('key_path')
+        email = config.get('email')
+        password = config.get('password')
+        savedir = config.get('savedir')
 
-        self.window.show()
-        self.app.exec()
-    
-    def getData(self, data: GameCollection):
-        '''Loads the retrieved data into a local copy and populates the UI\n
-        data: the data retrieved from the firebase connector
-        '''
-        self.data = data
-        self.__loadData()
-    
-    def __loadData(self):
-        '''Transfers the loaded data to the UI
-        '''
-        self.window.loadLevel(self.data, '')
+    #link connector
+    connector = FirebaseConnector.Connector(key=key, email=email, password=password, savedir=savedir)
+
+    window = MainWindow(source=connector)
+
+    window.show()
+    sys.exit(app.exec())
 

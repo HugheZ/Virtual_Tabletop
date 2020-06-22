@@ -23,7 +23,9 @@ class Connector:
 
         #set up current data and location in DB for local
         self.__data = None
+        #physical location
         self.__location = ''
+        #location ending
         self.__locationname = ''
 
         #configure pyrebase link
@@ -51,6 +53,11 @@ class Connector:
         if email and password:
             self.__user = self.__auth.sign_in_with_email_and_password(email, password)
     
+    def getLocation(self):
+        '''Gets the human-readable location for the currently loaded level
+        '''
+        return self.__location.replace('/games', '')
+
     def _getLevel(self):
         '''Gets the current level in the database and fills underlying data field'''
         data = self.__db.child(self.__location).get().val()

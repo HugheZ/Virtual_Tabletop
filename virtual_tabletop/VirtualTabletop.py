@@ -4,12 +4,13 @@ from virtual_tabletop.UI.MainWindow import MainWindow
 from virtual_tabletop.Data.GameCollection import GameCollection
 from os import sys
 import json
+from getpass import getpass
 
 class VT:
     def __init__(self):
         self.app = QtWidgets.QApplication(sys.argv)
 
-        self.connector = FirebaseConnector.Connector(key='key.json', email=input('Email: '), password=input('Password: '))
+        self.connector = FirebaseConnector.Connector(key='key.json', email=input('Email: '), password=getpass('Password: '))
 
         self.window = MainWindow()
         

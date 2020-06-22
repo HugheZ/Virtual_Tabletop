@@ -1,3 +1,5 @@
+import requests
+
 class Game():
     '''
     A data class to hold information about a given virtualized game.
@@ -40,6 +42,14 @@ class Game():
 
     def getImage(self):
         pass
+
+    def getPreview(self):
+        '''Returns the string preview image
+        '''
+        if self.local:
+            return open(self.__preview_path)
+        else:
+            return requests.get(self.preview_image).content
 
     def __str__(self):
         '''Returns a string representation of this Game object:\n

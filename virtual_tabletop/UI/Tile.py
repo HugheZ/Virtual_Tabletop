@@ -26,9 +26,11 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         if type(game) == Game:
             print(game)
             self.gameName.setText(game.name)
-            img = game.getImage()
+            img = game.getPreview()
             if img:
-                self.gameImage.setPixmap(img)
+                pm = QtGui.QPixmap()
+                pm.loadFromData(img)
+                self.gameImage.setPixmap(pm)
             self.localAvailable.setEnabled(game.local)
             self.cloudAvailable.setEnabled(game.online)
         elif type(game) == GameCollection:

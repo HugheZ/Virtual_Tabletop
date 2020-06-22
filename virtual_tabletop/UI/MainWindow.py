@@ -13,13 +13,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.setupUi(self)
 
         #temp add in some game tiles
-        for i in range(6):
-            litem = QtWidgets.QListWidgetItem(self.gamesList)
-            t = Tile()
-            litem.setSizeHint(t.maximumSize())
-            self.gamesList.addItem(litem)
-            self.gamesList.setItemWidget(litem, t)
-        self.breadcrumbs.setText('> test')
+        # for i in range(6):
+        #     litem = QtWidgets.QListWidgetItem(self.gamesList)
+        #     t = Tile()
+        #     litem.setSizeHint(t.maximumSize())
+        #     self.gamesList.addItem(litem)
+        #     self.gamesList.setItemWidget(litem, t)
+        # self.breadcrumbs.setText('> test')
     
 
     def loadLevel(self, data: GameCollection, level: str = ''):
@@ -32,7 +32,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         for game in data:
             litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile()
-            #TODO: load the game onto the tile
+            t.loadGame(game)
             litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)

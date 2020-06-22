@@ -18,21 +18,23 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         super(Tile, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
-        #load game if we have one
-        if 'game' in kwargs:
-            self.loadGame(kwargs['game'])
     
     def loadGame(self, game: Union[Game, GameCollection]):
         '''Loads a user-defined game into this specific tile\n
         game: a game or game collection to be loaded to this tile
         '''
         if type(game) == Game:
-            self.gameName = game.name
-            self.gameImage = game.getImage()
+            print(game)
+            self.gameName.setText(game.name)
+            img = game.getImage()
+            if img:
+                self.gameImage.setPixmap(img)
             self.localAvailable.setEnabled(game.local)
             self.cloudAvailable.setEnabled(game.online)
         elif type(game) == GameCollection:
-            self.gameName = game.name
-            self.gameImage = QtGui.QPixmap(":/icons/collection.png")
+            print(game)
+            self.gameName.setText(game.name)
+            self.gameImage.setPixmap(QtGui.QPixmap(":/icons/collection.png"))
+            self.loadButton.setText('Open Collection')
         else:
             raise Exception('Tiles only support loading Game or GameCollection data')

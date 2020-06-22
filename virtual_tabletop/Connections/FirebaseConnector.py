@@ -37,11 +37,11 @@ class Connector:
         self.__db = self.__fb.database()
         self.__storage = self.__fb.storage()
 
-        #get base data
-        self._getLevel()
-
         #set updators
         self.__watchers = []
+
+        #get base data
+        self._getLevel()
     
     def login(self, email: str, password: str):
         '''Logs into the linked DB\n

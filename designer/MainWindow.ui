@@ -15,13 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QLabel" name="breadcrumbs">
-      <property name="text">
-       <string>&gt;</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0" colspan="2">
      <widget class="QListWidget" name="gamesList">
       <property name="toolTip">
@@ -37,13 +30,16 @@
        <enum>QListView::Adjust</enum>
       </property>
       <property name="spacing">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="gridSize">
        <size>
-        <width>150</width>
-        <height>150</height>
+        <width>250</width>
+        <height>250</height>
        </size>
+      </property>
+      <property name="uniformItemSizes">
+       <bool>true</bool>
       </property>
       <property name="itemAlignment">
        <set>Qt::AlignCenter</set>
@@ -88,6 +84,13 @@
       </property>
       <property name="toolTip">
        <string>Current boards</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLabel" name="breadcrumbs">
+      <property name="text">
+       <string>&gt;</string>
       </property>
      </widget>
     </item>

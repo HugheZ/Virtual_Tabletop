@@ -1,12 +1,15 @@
 from virtual_tabletop.UI.MainWindow_UI import Ui_VTTMainWindow
 from virtual_tabletop.UI.Tile import Tile
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
 from typing import Optional
 
 class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     '''A simple wrapper class for the auto-generated MainWindow_UI-defined main window class'''
+
+    #game choice signal
+    gameSelected = QtCore.pyqtSignal(str)
 
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -31,8 +34,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.gamesList.clear()
         for game in data:
             litem = QtWidgets.QListWidgetItem(self.gamesList)
-            t = Tile()
-            t.loadGame(game)
+            t = Tile(parent=self.gamesList, game=game)
+            #t.loadGame(game)
             litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)
@@ -46,3 +49,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''
         back = toggle if toggle else not self.backButton.isEnabled()
         self.backButton.setEnabled(back)
+    
+    @QtCore.pyqtSlot(str)
+    def __game_selected(self, gameSelected):
+        '''Slot defined to parrot signal from selected tile to the DB controller
+        '''
+        print(gameSelected)

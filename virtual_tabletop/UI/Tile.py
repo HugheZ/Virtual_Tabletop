@@ -1,5 +1,6 @@
 from virtual_tabletop.UI.Tile_UI import Ui_Tile
 from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtCore 
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
 from typing import Union
@@ -12,11 +13,21 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
 
     Collection tiles will alternatively display a folder icon and omit a game image and a 'displayed locally' icon
     '''
+    loadSignal = QtCore.pyqtSignal(str)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, game:Union[Game, GameCollection]=None, *args, **kwargs):
         '''Standard init function for the tile, takes an additional kwarg game for loading games or game collections'''
         super(Tile, self).__init__(*args, **kwargs)
         self.setupUi(self)
+
+        #load game if given
+        if game:
+            self.loadGame(game)
+        
+        print(self.gameName.text())
+
+        #set up signals for pressing buttons
+        self.loadButton.clicked.connect(self.__game_on_click)
 
     
     def loadGame(self, game: Union[Game, GameCollection]):
@@ -40,3 +51,9 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
             self.loadButton.setText('Open Collection')
         else:
             raise Exception('Tiles only support loading Game or GameCollection data')
+    
+    @QtCore.pyqtSlot()
+    def __game_on_click(self):
+        '''Handler for button slot that sends the information up
+        '''
+        self.loadSignal.emit(self.gameName.text())

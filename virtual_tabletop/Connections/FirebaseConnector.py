@@ -1,5 +1,6 @@
 import pyrebase, json, os
-from virtual_tabletop.Data import Game, GameCollection
+from virtual_tabletop.Data.Game import Game 
+from virtual_tabletop.Data.GameCollection import GameCollection
 from weakref import ref, WeakMethod
 from typing import Callable, Mapping, Union, Optional
 
@@ -55,7 +56,7 @@ class Connector:
         data = self.__db.child(self.__location).get().val()
 
         #parse the data (must be as collection)
-        self.__data = GameCollection.GameCollection(self.__locationname, data)
+        self.__data = GameCollection(self.__locationname, data)
 
         #notify any watcher
         self.__updateWatchers()

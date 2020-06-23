@@ -130,6 +130,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             config = json.load(f)
         dlg = Settings(parent=self, config=config)
         dlg.exec_()
+        print(config)
         #modality stopped, save config
         with open('config.json', 'w') as f:
             json.dump(config, f)

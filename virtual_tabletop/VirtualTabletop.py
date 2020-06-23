@@ -17,18 +17,21 @@ def launch():
 
     #open configuration file
     if path.exists('config.json'):
+        login = False
+        storecreds = False
         with open('config.json') as f:
             config = json.load(f)
             key = config.get('key_path')
-            email = config.get('email')
-            password = config.get('password')
             savedir = config.get('savedir')
+            login = config.get('login_on_startup')
+            storecreds = config.get('storecreds')
+
         #get password and email if asked
-        #TODO
-        with open('credentials.json') as f:
-            creds = json.load(f)
-            email = creds.get('email')
-            password = creds.get('password')
+        if storecreds and login:
+            with open('credentials.json') as f:
+                creds = json.load(f)
+                email = creds.get('email')
+                password = creds.get('password')
     else:
         with open('config.json','w') as f:
             config = {

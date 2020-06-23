@@ -47,9 +47,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         if not path.exists(newKey):
             raise FileNotFoundError('No firebase key file found at given directory')
         #update config file
-        config = json.load(open('config.json'))
+        config = None
+        with open('config.json') as f:
+            config = json.load(f)
         config['key_path'] = newKey
-        json.dump(config, open('config.json','w'))
+        with open('config.json', 'w') as f:
+            json.dump(config, f)
         #rebase source
         del self.source
         savedir = config.get('savedir')
@@ -122,11 +125,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     def __launch_config_dialog(self):
         '''Launches the config dialog to change user settings
         '''
-        config = json.load(open('config.json'))
+        config = None
+        with open('config.json') as f:
+            config = json.load(f)
         dlg = Settings(parent=self, config=config)
         dlg.exec_()
         #modality stopped, save config
-        json.dump(config, open('config.json', 'w'))
+        with open('config.json', 'w') as f:
+            json.dump(config, f)
 
     
     #TODO: slots for logging in / out, making new game / game collection

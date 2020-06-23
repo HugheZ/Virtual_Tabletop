@@ -17,11 +17,24 @@ def launch():
 
     #open configuration file
     if path.exists('config.json'):
-        config = json.load(open('config.json'))
-        key = config.get('key_path')
-        email = config.get('email')
-        password = config.get('password')
-        savedir = config.get('savedir')
+        with open('config.json') as f:
+            config = json.load(f)
+            key = config.get('key_path')
+            email = config.get('email')
+            password = config.get('password')
+            savedir = config.get('savedir')
+    else:
+        with open('config.json','w') as f:
+            config = {
+                "key_path":None,
+                "savedir":"./localboards",
+                "storecreds":False,
+                "storecreds":False,
+                "auto_upload":False,
+                "store_on_download":False,
+                "login_on_startup":False
+            }
+            json.dump(config, f)
 
     #link connector
     connector = None

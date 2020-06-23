@@ -23,12 +23,17 @@ def launch():
             email = config.get('email')
             password = config.get('password')
             savedir = config.get('savedir')
+        #get password and email if asked
+        #TODO
+        with open('credentials.json') as f:
+            creds = json.load(f)
+            email = creds.get('email')
+            password = creds.get('password')
     else:
         with open('config.json','w') as f:
             config = {
                 "key_path":None,
                 "savedir":"./localboards",
-                "storecreds":False,
                 "storecreds":False,
                 "auto_upload":False,
                 "store_on_download":False,

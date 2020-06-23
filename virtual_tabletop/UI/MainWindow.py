@@ -1,5 +1,6 @@
 from virtual_tabletop.UI.MainWindow_UI import Ui_VTTMainWindow
 from virtual_tabletop.UI.Tile import Tile
+from virtual_tabletop.UI.Settings import Settings
 from PyQt5 import QtWidgets, QtCore
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
@@ -29,6 +30,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         
         #Connect slots and signals
         self.actionSet_Firebase.triggered.connect(self.__rebase)
+        self.actionLog_in_preferences.triggered.connect(self.__launch_config_dialog)
     
     def connectToSource(self, source: Connector):
         '''Connects this window to a data source\n
@@ -116,7 +118,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #rebase
         self.rebaseSource(key)
     
-    #TODO: slots for rebasing and changing preferences
+    @QtCore.pyqtSlot()
+    def __launch_config_dialog(self):
+        '''Launches the config dialog to change user settings
+        '''
+        config = json.load(open('config.json'))
+        dlg = Settings(parent=self, config=config)
+        dlg.exec_()
+        #modality stopped, save config
+        json.dump(config, open('config.json', 'w'))
+
+    
+    #TODO: slots for logging in / out, making new game / game collection
     
 
 

@@ -24,7 +24,9 @@ def launch():
         savedir = config.get('savedir')
 
     #link connector
-    connector = FirebaseConnector.Connector(key=key, email=email, password=password, savedir=savedir)
+    connector = None
+    if path.exists(key):
+        connector = FirebaseConnector.Connector(key=key, email=email, password=password, savedir=savedir)
 
     window = MainWindow(source=connector)
 

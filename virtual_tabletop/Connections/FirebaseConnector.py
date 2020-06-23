@@ -68,6 +68,13 @@ class Connector:
         #notify any watcher
         self.__updateWatchers()
 
+        #TODO: still need to get local data
+    
+    def refresh(self):
+        '''Publicly visible refresh method to update pulled data
+        '''
+        self._getLevel()
+
     def goUp(self):
         '''Goes up in the DB hierarchy'''
         #if we are at base, ignore, else strip the last "/~~~/games" from the location
@@ -121,6 +128,7 @@ class Connector:
             prev_type = os.path.splitext(toAdd.__preview_path)[1]
             self.__storage.child(location).child(toAdd.name + '_board' + board_type).put(toAdd.__board_path)
             self.__storage.child(location).child(toAdd.name + '_preview' + prev_type).put(toAdd.__board_path)
+            #TODO: after push, retain new http endpoint to pull images from
 
         elif type(toAdd) == GameCollection:
             #nothing to do for collections, iterate over each game with this name added to location

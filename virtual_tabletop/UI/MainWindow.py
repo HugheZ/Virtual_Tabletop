@@ -11,9 +11,6 @@ import json
 class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     '''A simple wrapper class for the auto-generated MainWindow_UI-defined main window class'''
 
-    #game choice signal
-    gameSelected = QtCore.pyqtSignal(str)
-
     def __init__(self, source: Optional[Connector] = None, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
@@ -29,6 +26,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
                 self.connectToSource(source)
             except Exception as e:
                 self.showError(e)
+        
+        #Connect slots and signals
+        self.actionSet_Firebase.triggered.connect(self.__rebase)
     
     def connectToSource(self, source: Connector):
         '''Connects this window to a data source\n
@@ -53,8 +53,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         savedir = config.get('savedir')
         if not savedir:
             savedir = path.join('.','localboards')
-        self.source = Connector(key=newKey, email=config.get('email'), password=config.get('password'), savedir=savedir)
-        self.source.watch(self, self.__updateData)
+        source = Connector(key=newKey, email=config.get('email'), password=config.get('password'), savedir=savedir)
+        self.connectToSource(source)
 
         #reset navigation
         self.toggleBack(False)
@@ -101,6 +101,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Slot defined to parrot signal from selected tile to the DB controller
         '''
         print(gameSelected)
+    
+    @QtCore.pyqtSlot()
+    def __rebase(self):
+        '''Slot defined to open file browser and select new path to pull firebase data from.\n
+        On new key selection, a new Connector object will be linked.
+        '''
+        key = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select Firebase key', filter='JSON (*.json)')[0]
+
+        #if key is null, there is no new selection, so return
+        if key == '':
+            return
+        
+        #rebase
+        self.rebaseSource(key)
     
     #TODO: slots for rebasing and changing preferences
     

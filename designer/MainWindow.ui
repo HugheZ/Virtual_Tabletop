@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>488</width>
-    <height>341</height>
+    <width>600</width>
+    <height>300</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>300</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Virtual Tabletop</string>
@@ -101,7 +107,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>488</width>
+     <width>600</width>
      <height>18</height>
     </rect>
    </property>
@@ -157,6 +163,12 @@
    <property name="text">
     <string>Set Firebase...</string>
    </property>
+   <property name="toolTip">
+    <string>Select Firebase API key</string>
+   </property>
+   <property name="statusTip">
+    <string>Select a Firebase API key from your local filesystem to link</string>
+   </property>
   </action>
   <action name="actionBackup_Local">
    <property name="text">
@@ -175,7 +187,7 @@
   </action>
   <action name="actionLog_in_preferences">
    <property name="text">
-    <string>Login preferences...</string>
+    <string>Preferences...</string>
    </property>
   </action>
  </widget>

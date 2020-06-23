@@ -14,7 +14,7 @@ class Ui_VTTMainWindow(object):
     def setupUi(self, VTTMainWindow):
         VTTMainWindow.setObjectName("VTTMainWindow")
         VTTMainWindow.resize(600, 300)
-        VTTMainWindow.setMinimumSize(QtCore.QSize(600, 300))
+        VTTMainWindow.setMinimumSize(QtCore.QSize(1200, 600))
         self.centralwidget = QtWidgets.QWidget(VTTMainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)

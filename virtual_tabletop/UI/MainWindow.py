@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #Connect slots and signals
         self.actionSet_Firebase.triggered.connect(self.__rebase)
         self.actionLog_in_preferences.triggered.connect(self.__launch_config_dialog)
+        self.backButton.clicked.connect(self.__return_in_hierarchy)
     
     def connectToSource(self, source: Connector):
         '''Connects this window to a data source\n

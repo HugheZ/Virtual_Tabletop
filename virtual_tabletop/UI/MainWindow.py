@@ -4,7 +4,7 @@ from virtual_tabletop.UI.Settings import Settings
 from PyQt5 import QtWidgets, QtCore
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
-from typing import Optional
+from typing import Optional, Union
 from virtual_tabletop.Connections.FirebaseConnector import Connector
 from os import path
 import json
@@ -20,6 +20,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.data = None
         #source info
         self.source = None
+        #open games
+        self.openGames = []
 
         #connect data source if applicable
         if source:
@@ -82,13 +84,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         for game in data:
             litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile(parent=self.gamesList, game=game)
-            #t.loadGame(game)
+            t.loadSignal.connect(self.__game_selected)
             litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)
         
         #set breadcrumbs
         self.breadcrumbs.setText('> ' + level)
+    
+    def loadGame(self, game: Game):
+        '''Loads the specified game to the open games\n
+        game: the Game to load
+        '''
+        self.openGames.append(game)
+        #TODO: load on other screen
 
     def toggleBack(self, toggle: Optional[bool] = None):
         '''Toggles whether or not the back button is enabled\n
@@ -102,10 +111,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     ###########################################################
 
     @QtCore.pyqtSlot(str)
-    def __game_selected(self, gameSelected):
-        '''Slot defined to parrot signal from selected tile to the DB controller
+    def __game_selected(self, gameSelected: str):
+        '''Slot defined to parrot signal from selected tile to the DB controller\n
+        gameSelected: the game / game collection selected by the user
         '''
-        print(gameSelected)
+        game = self.data.find(gameSelected)
+        #if collection, go down to that collection
+        if type(game) == GameCollection:
+            self.source.goDown(game.name)
+            self.toggleBack(True)
+        elif type(game) == Game: #else load that game
+            self.loadGame(game)
+        else: raise Exception('Game selected was neither game or game collection')
+    
+    @QtCore.pyqtSlot()
+    def __return_in_hierarchy(self):
+        '''Returns in the hierarchy, setting the up button to disabled if at root
+        '''
+        self.source.goUp()
+        if self.source.getLocation() == '':
+            self.toggleBack(False)
     
     @QtCore.pyqtSlot()
     def __rebase(self):

@@ -1,6 +1,7 @@
-from .Game import Game
+from virtual_tabletop.Data.Game import Game
 import pyrebase
 from collections import OrderedDict
+from typing import Union
 
 class GameCollection():
     '''
@@ -42,6 +43,37 @@ class GameCollection():
         else:
             raise TypeError("Invalid game for game collection:\nExpected {0} or {1} but received {2}".format(Game, GameCollection, type(game)))
     
+    def find(self, game:Union[str, Game]):
+        '''Finds the given game in the game list, returning it or None if not found\n
+        game: the game to find
+        '''
+        try:
+            l = lambda g, gother : g == gother
+            if type(game) == str:
+                l = lambda g, gother : g == gother.name
+            for g in self.games:
+                print(str(g) + ' == ' + str(game) + ': ' + str(l(game, g)))
+            return next(val for x, val in enumerate(self.games) if l(game, val))
+        except Exception as e:
+            print(str(e))
+            return 
+    
+    def __getitem__(self, key):
+        '''Overrides the [] operator'''
+        return self.games[key]
+    
+    def __setitem__(self, key, value):
+        '''Overrides the [] = operator'''
+        if type(value) not in [Game, GameCollection]:
+            raise TypeError('Game Collection only supports adding Games or Game Collections')
+        if key < 0 or key > len(self.games):
+            raise IndexError('Index given out of bounds of games list')
+        self.games[key] = value
+    
+    def __eq__(self, obj):
+        '''Returns true if self and obj are the same collection'''
+        return isinstance(obj, GameCollection) and self.name == obj.name and len(self.games) == len(obj.games) and self.games == obj.games
+
     def __len__(self):
         '''Simple length function, returns length of games list'''
         return len(self.games)

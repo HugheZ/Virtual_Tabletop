@@ -47,9 +47,18 @@ class Game():
         '''Returns the string preview image
         '''
         if self.local:
+            if self.__preview_path is None:
+                return None
             return open(self.__preview_path)
         else:
+            if self.preview_image is None:
+                return None
             return requests.get(self.preview_image).content
+    
+    def __eq__(self, obj):
+        '''Returns true if self and obj are the same game
+        '''
+        return isinstance(obj, Game) and self.name == obj.name and self.height == obj.height and self.width == obj.width and self.board == obj.board and self.preview_image == obj.preview_image
 
     def __str__(self):
         '''Returns a string representation of this Game object:\n

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>300</height>
+    <height>418</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -132,10 +132,11 @@
    </widget>
    <widget class="QMenu" name="menuStorage">
     <property name="title">
-     <string>Storage</string>
+     <string>Database</string>
     </property>
     <addaction name="actionSet_Firebase"/>
     <addaction name="actionLogin"/>
+    <addaction name="actionLog_out"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -192,6 +193,14 @@
   <action name="actionLog_in_preferences">
    <property name="text">
     <string>Preferences...</string>
+   </property>
+  </action>
+  <action name="actionLog_out">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Log out...</string>
    </property>
   </action>
  </widget>

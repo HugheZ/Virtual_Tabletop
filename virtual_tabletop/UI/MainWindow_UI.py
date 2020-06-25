@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_VTTMainWindow(object):
     def setupUi(self, VTTMainWindow):
         VTTMainWindow.setObjectName("VTTMainWindow")
-        VTTMainWindow.resize(1200, 300)
+        VTTMainWindow.resize(1200, 418)
         VTTMainWindow.setMinimumSize(QtCore.QSize(1200, 300))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -85,6 +85,9 @@ class Ui_VTTMainWindow(object):
         self.actionLogin.setObjectName("actionLogin")
         self.actionLog_in_preferences = QtWidgets.QAction(VTTMainWindow)
         self.actionLog_in_preferences.setObjectName("actionLog_in_preferences")
+        self.actionLog_out = QtWidgets.QAction(VTTMainWindow)
+        self.actionLog_out.setEnabled(False)
+        self.actionLog_out.setObjectName("actionLog_out")
         self.menuNew.addAction(self.actionGame)
         self.menuNew.addAction(self.actionGame_Collection)
         self.menuFile.addAction(self.menuNew.menuAction())
@@ -92,6 +95,7 @@ class Ui_VTTMainWindow(object):
         self.menuFile.addAction(self.actionQuit)
         self.menuStorage.addAction(self.actionSet_Firebase)
         self.menuStorage.addAction(self.actionLogin)
+        self.menuStorage.addAction(self.actionLog_out)
         self.menuSettings.addAction(self.actionLog_in_preferences)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuStorage.menuAction())
@@ -109,7 +113,7 @@ class Ui_VTTMainWindow(object):
         self.breadcrumbs.setText(_translate("VTTMainWindow", ">"))
         self.menuFile.setTitle(_translate("VTTMainWindow", "File"))
         self.menuNew.setTitle(_translate("VTTMainWindow", "Add here..."))
-        self.menuStorage.setTitle(_translate("VTTMainWindow", "Storage"))
+        self.menuStorage.setTitle(_translate("VTTMainWindow", "Database"))
         self.menuSettings.setTitle(_translate("VTTMainWindow", "Settings"))
         self.actionGame.setText(_translate("VTTMainWindow", "Game"))
         self.actionGame_Collection.setText(_translate("VTTMainWindow", "Game Collection"))
@@ -121,4 +125,5 @@ class Ui_VTTMainWindow(object):
         self.actionWipe_Local.setText(_translate("VTTMainWindow", "Wipe Local"))
         self.actionLogin.setText(_translate("VTTMainWindow", "Log in..."))
         self.actionLog_in_preferences.setText(_translate("VTTMainWindow", "Preferences..."))
+        self.actionLog_out.setText(_translate("VTTMainWindow", "Log out..."))
 import resources_rc

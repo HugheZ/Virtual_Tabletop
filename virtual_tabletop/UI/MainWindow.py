@@ -1,6 +1,7 @@
 from virtual_tabletop.UI.MainWindow_UI import Ui_VTTMainWindow
 from virtual_tabletop.UI.Tile import Tile
 from virtual_tabletop.UI.Settings import Settings
+from virtual_tabletop.UI.Login import LoginDialog
 from PyQt5 import QtWidgets, QtCore
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
@@ -34,6 +35,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.actionSet_Firebase.triggered.connect(self.__rebase)
         self.actionLog_in_preferences.triggered.connect(self.__launch_config_dialog)
         self.backButton.clicked.connect(self.__return_in_hierarchy)
+        self.actionLog_out.triggered.connect(self.__log_out_confirm)
+        self.actionLogin.triggered.connect(self.__credentials_launch)
     
     def connectToSource(self, source: Connector):
         '''Connects this window to a data source\n
@@ -41,6 +44,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''
         self.source = source
         self.source.watch(self, self.__updateData)
+    
+    def login(self, email:str, password:str):
+        '''Logs in to the connected source if one exists, else does nothing\n
+        email: the email used to log in to firebase\n
+        password: the password used to log in to firebase
+        '''
+        pass
+    
+    def logout(self):
+        '''Logs out of the connected source if already logged in, else does nothing
+        '''
+        pass
     
     def rebaseSource(self, newKey: str):
         '''Rebases the tracked DB to follow the new key path after saving the new path to the config file\n
@@ -156,13 +171,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             config = json.load(f)
         dlg = Settings(parent=self, config=config)
         dlg.exec_()
-        print(config)
         #modality stopped, save config
         with open('config.json', 'w') as f:
             json.dump(config, f)
+    
+    @QtCore.pyqtSlot()
+    def __log_out_confirm(self):
+        '''Launches the log-out confirmation modal and logs out if confirmed
+        '''
+        dlg = QtWidgets.QMessageBox()
+        dlg.setIcon(QtWidgets.QMessageBox.Warning)
+
+        dlg.setText("Are you sure you want to log out?")
+        dlg.setInformativeText("Non-local games will be lost.")
+        dlg.setWindowTitle("Log-out")
+        dlg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+
+        if dlg.exec_() == QtWidgets.QMessageBox.Yes:
+            self.logout()
+    
+    @QtCore.pyqtSlot()
+    def __credentials_launch(self):
+        '''Launches the credentials dialog for logging in
+        '''
+        creds = self.openCredentialsDialog()
+
 
     
-    #TODO: slots for logging in / out, making new game / game collection
+    #TODO: slots for logging in, making new game / game collection
     
 
 
@@ -185,5 +221,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     def openCredentialsDialog(self):
         '''Opens a credentials dialog that asks for user sign-in info
         '''
-        #TODO
-        return {}
+        creds = {'email':None,'password':None}
+        dlg = LoginDialog(creds=creds, parent=self)
+
+        if dlg.exec_() == QtWidgets.QMessageBox.Ok:
+            return creds
+        else: return None

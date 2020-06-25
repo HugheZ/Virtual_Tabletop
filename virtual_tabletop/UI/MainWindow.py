@@ -46,16 +46,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.source.watch(self, self.__updateData)
     
     def login(self, email:str, password:str):
-        '''Logs in to the connected source if one exists, else does nothing\n
+        '''Logs in to the connected source if one exists, else shows error\n
         email: the email used to log in to firebase\n
         password: the password used to log in to firebase
         '''
-        pass
+        try:
+            self.source.login(email, password)
+            self.tryToggleLogin(False)
+        except Exception as e:
+            self.showError(e)
     
     def logout(self):
         '''Logs out of the connected source if already logged in, else does nothing
         '''
-        pass
+        self.source.logout()
+        self.tryToggleLogin(True)
     
     def rebaseSource(self, newKey: str):
         '''Rebases the tracked DB to follow the new key path after saving the new path to the config file\n
@@ -82,6 +87,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #reset navigation
         self.toggleBack(False)
         #TODO: close all open boards
+
+        #toggle login
+        self.tryToggleLogin(True)
     
     def __updateData(self, data: GameCollection):
         '''Handle for updating local data and setting off UI update\n
@@ -97,6 +105,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''
         #clear current level
         self.gamesList.clear()
+        
+        #if no data, return
+        if data is None:
+            return
+        
+        #populate list
         for game in data:
             litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile(parent=self.gamesList, game=game)
@@ -121,6 +135,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''
         back = toggle if toggle else not self.backButton.isEnabled()
         self.backButton.setEnabled(back)
+    
+    def tryToggleLogin(self, enableLogin:bool):
+        '''Tries to toggle the log-in action. Checks for if source exists and we aren't logged in\n
+        enableLogin: whether we want login (True) to be enabled and logout disabled or vice versa (False)
+        '''
+        if enableLogin and self.source is not None and not self.source.isLoggedIn():
+            self.actionLogin.setEnabled(True)
+            self.actionLog_out.setEnabled(False)
+        elif not enableLogin and self.source is not None and self.source.isLoggedIn():
+            self.actionLogin.setEnabled(False)
+            self.actionLog_out.setEnabled(True)
     
     ###########################################################
     ##                         SLOTS                         ##
@@ -195,6 +220,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Launches the credentials dialog for logging in
         '''
         creds = self.openCredentialsDialog()
+
+        #if we have creds, try to log in, show error on fail
+        if creds is not None:
+            self.login(creds['email'], creds['password'])
 
 
     

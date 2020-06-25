@@ -46,12 +46,29 @@ class Connector:
         self._getLevel()
     
     def login(self, email: str, password: str):
-        '''Logs into the linked DB\n
+        '''Logs into the linked DB and gets initial data\n
         email: the email used to log in\n
         password: the password used to log in
         '''
         if email and password:
             self.__user = self.__auth.sign_in_with_email_and_password(email, password)
+            if self.__user:
+                self.__location = '/'
+                self.__locationname = ''
+                self._getLevel()
+    
+    def logout(self):
+        '''Logs out of the linked DB, resets data
+        '''
+        self.__auth.current_user = None
+        self.__user = None
+        self.__data = None
+        self.__updateWatchers()
+    
+    def isLoggedIn(self):
+        '''Returns true if the current user is logged in, else false
+        '''
+        return self.__auth.current_user is not None and self.__user is not None
     
     def getLocation(self):
         '''Gets the human-readable location for the currently loaded level
@@ -60,10 +77,14 @@ class Connector:
 
     def _getLevel(self):
         '''Gets the current level in the database and fills underlying data field'''
-        data = self.__db.child(self.__location).get().val()
+        #TODO: this silently ignores errors and returns no data, should only catch permission exceptions if not logged in, otherwise it should send up the call stack. Maybe check __user not None?
+        try:
+            data = self.__db.child(self.__location).get().val()
 
-        #parse the data (must be as collection)
-        self.__data = GameCollection(self.__locationname, data)
+            #parse the data (must be as collection)
+            self.__data = GameCollection(self.__locationname, data)
+        except Exception as e:
+            self.__data = None
 
         #notify any watcher
         self.__updateWatchers()

@@ -21,6 +21,9 @@ class Ui_settingsDialog(object):
         sizePolicy.setHeightForWidth(settingsDialog.sizePolicy().hasHeightForWidth())
         settingsDialog.setSizePolicy(sizePolicy)
         settingsDialog.setMinimumSize(QtCore.QSize(0, 0))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        settingsDialog.setWindowIcon(icon)
         self.gridLayout = QtWidgets.QGridLayout(settingsDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.pages = QtWidgets.QTabWidget(settingsDialog)
@@ -156,3 +159,4 @@ class Ui_settingsDialog(object):
         self.changeSaveLocationButton.setText(_translate("settingsDialog", "..."))
         self.saveLocationDesc.setText(_translate("settingsDialog", "This is the location where all local games and game collections will be stored. The default save location is \"VirtualTabletop/localboards\". Changing this location will not copy over any games or game collections from the previous location."))
         self.pages.setTabText(self.pages.indexOf(self.usabilitySettings), _translate("settingsDialog", "Usability Settings"))
+import resources_rc

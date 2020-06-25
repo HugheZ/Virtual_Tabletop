@@ -20,6 +20,13 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         super(Tile, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
+        # TODO: AAAA it's 1:20AM and it's dumb that QT auto-sets all children to have a drop shadow!
+        # self.shadow = QtWidgets.QGraphicsDropShadowEffect(self)
+        # self.shadow.setBlurRadius(3)
+        # self.shadow.setXOffset(-2)
+        # self.shadow.setYOffset(-2)
+        # self.setGraphicsEffect(self.shadow)
+
         #load game if given
         if game:
             self.loadGame(game)

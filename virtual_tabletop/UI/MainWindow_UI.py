@@ -13,8 +13,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_VTTMainWindow(object):
     def setupUi(self, VTTMainWindow):
         VTTMainWindow.setObjectName("VTTMainWindow")
-        VTTMainWindow.resize(600, 300)
-        VTTMainWindow.setMinimumSize(QtCore.QSize(1200, 600))
+        VTTMainWindow.resize(1200, 300)
+        VTTMainWindow.setMinimumSize(QtCore.QSize(1200, 300))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        VTTMainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(VTTMainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -52,7 +55,7 @@ class Ui_VTTMainWindow(object):
         self.gridLayout.addWidget(self.breadcrumbs, 0, 1, 1, 1)
         VTTMainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(VTTMainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 600, 18))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 18))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -118,3 +121,4 @@ class Ui_VTTMainWindow(object):
         self.actionWipe_Local.setText(_translate("VTTMainWindow", "Wipe Local"))
         self.actionLogin.setText(_translate("VTTMainWindow", "Log in..."))
         self.actionLog_in_preferences.setText(_translate("VTTMainWindow", "Preferences..."))
+import resources_rc

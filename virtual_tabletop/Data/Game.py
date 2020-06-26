@@ -38,10 +38,19 @@ class Game():
         #TODO: if local, copy image to local storage
     
     def loadImage(self):
-        pass
+        ret = None
+        #use local first
+        if self.local:
+            with open(self.__board_path) as f:
+                ret = f.read()
+        else:
+            ret = requests.get(self.board).content
+        self.__board = ret
 
     def getImage(self):
-        pass
+        if self.__board is None:
+            self.loadImage()
+        return self.__board
 
     def getPreview(self):
         '''Returns the string preview image

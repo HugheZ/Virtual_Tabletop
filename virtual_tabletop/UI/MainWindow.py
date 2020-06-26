@@ -2,7 +2,7 @@ from virtual_tabletop.UI.MainWindow_UI import Ui_VTTMainWindow
 from virtual_tabletop.UI.Tile import Tile
 from virtual_tabletop.UI.Settings import Settings
 from virtual_tabletop.UI.Login import LoginDialog
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
 from typing import Optional, Union
@@ -33,12 +33,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         
         #open secondary window if coords are given
         #if secondaryWindowCoord is not None:
-        secondaryWidget = QtWidgets.QMainWindow(parent=self, flags=QtCore.Qt.Window)
-        secondaryWidget.setCentralWidget(QtWidgets.QMdiArea(parent=secondaryWidget))
+        secondaryScreen = QtWidgets.QMainWindow(parent=self, flags=QtCore.Qt.Window)
+        self.secondaryScreen = secondaryScreen
+        self.gamesArea = QtWidgets.QMdiArea(parent=self.secondaryScreen)
+        secondaryScreen.setCentralWidget(self.gamesArea)
         desktop = QtWidgets.QDesktopWidget()
         monitor = desktop.screenGeometry(1)
-        secondaryWidget.move(monitor.x(), monitor.y())
-        secondaryWidget.showFullScreen()
+        secondaryScreen.move(monitor.x(), monitor.y())
+        secondaryScreen.showFullScreen()
         
         #Connect slots and signals
         self.actionSet_Firebase.triggered.connect(self.__rebase)
@@ -139,7 +141,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         game: the Game to load
         '''
         self.openGamesList.append(game)
-        #TODO: load on other screen
+        self.openGames.addItem(game.name)
+        #TODO: link loaded game with screen to enable closing on main window
+        label = QtWidgets.QLabel()
+        pixm = QtGui.QPixmap()
+        pixm.loadFromData(game.getImage())
+        label.setPixmap(pixm)
+        self.gamesArea.addSubWindow(label, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
 
     def toggleBack(self, toggle: Optional[bool] = None):
         '''Toggles whether or not the back button is enabled\n

@@ -13,7 +13,7 @@ import json
 class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     '''A simple wrapper class for the auto-generated MainWindow_UI-defined main window class'''
 
-    def __init__(self, source: Optional[Connector] = None, *args, **kwargs):
+    def __init__(self, source: Optional[Connector] = None, secondaryWindowCoord: Optional[tuple] = None, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
@@ -21,8 +21,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.data = None
         #source info
         self.source = None
-        #open games
-        self.openGames = []
+        #open games local list, separate from openGames widget
+        self.openGamesList = []
 
         #connect data source if applicable
         if source:
@@ -30,6 +30,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
                 self.connectToSource(source)
             except Exception as e:
                 self.showError(e)
+        
+        #open secondary window if coords are given
+        #if secondaryWindowCoord is not None:
+        secondaryWidget = QtWidgets.QMainWindow(parent=self, flags=QtCore.Qt.Window)
+        secondaryWidget.setCentralWidget(QtWidgets.QMdiArea(parent=secondaryWidget))
+        desktop = QtWidgets.QDesktopWidget()
+        monitor = desktop.screenGeometry(1)
+        secondaryWidget.move(monitor.x(), monitor.y())
+        secondaryWidget.showFullScreen()
         
         #Connect slots and signals
         self.actionSet_Firebase.triggered.connect(self.__rebase)
@@ -86,7 +95,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
 
         #reset navigation
         self.toggleBack(False)
-        #TODO: close all open boards
+        
+        #close all open boards
+        self.openGamesList.clear()
+        self.openGames.clear()
 
         #toggle login
         self.tryToggleLogin(True)
@@ -126,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Loads the specified game to the open games\n
         game: the Game to load
         '''
-        self.openGames.append(game)
+        self.openGamesList.append(game)
         #TODO: load on other screen
 
     def toggleBack(self, toggle: Optional[bool] = None):

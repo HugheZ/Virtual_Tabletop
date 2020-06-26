@@ -9,6 +9,12 @@ from getpass import getpass
 def launch():
     app = QtWidgets.QApplication(sys.argv)
 
+    #check environment
+    desktop = QtWidgets.QDesktopWidget()
+    if desktop.screenNumber() < 2:
+        raise EnvironmentError('Desktop count below minimum required number')
+
+
     #credentials
     key = None
     email = None
@@ -36,7 +42,7 @@ def launch():
         with open('config.json','w') as f:
             config = {
                 "key_path":None,
-                "savedir":"./localboards",
+                "savedir": path.join('.','localboards'),
                 "storecreds":False,
                 "auto_upload":False,
                 "store_on_download":False,

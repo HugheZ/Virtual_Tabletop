@@ -147,7 +147,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         pixm = QtGui.QPixmap()
         pixm.loadFromData(game.getImage())
         label.setPixmap(pixm)
-        self.gamesArea.addSubWindow(label, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        subwin = QtWidgets.QMdiSubWindow()
+        subwin.setWidget(label)
+        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        subwin.setWindowTitle(game.name)
+        subwin.show()
 
     def toggleBack(self, toggle: Optional[bool] = None):
         '''Toggles whether or not the back button is enabled\n

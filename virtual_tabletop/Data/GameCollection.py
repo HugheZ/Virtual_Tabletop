@@ -30,11 +30,14 @@ class GameCollection():
             self.games.append(GameCollection)
         elif type(game) == tuple:
             if game[1]['type'] == 'game':
+                print(game[1])
                 self.games.append(Game(game[0],
                     game[1].get('width'),
                     game[1].get('height'),
                     game[1].get('preview_image'),
-                    game[1].get('board')))
+                    game[1].get('board'),
+                    local=False,
+                    online=True)) #TODO: defaults to online, still need to check local
             elif game[1]['type'] == 'collection':
                 self.games.append(GameCollection(game[0],
                     game[1].get('games')))

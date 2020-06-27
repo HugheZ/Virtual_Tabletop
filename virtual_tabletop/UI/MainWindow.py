@@ -37,8 +37,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.secondaryScreen = secondaryScreen
         self.gamesArea = QtWidgets.QMdiArea(parent=self.secondaryScreen)
         secondaryScreen.setCentralWidget(self.gamesArea)
-        desktop = QtWidgets.QDesktopWidget()
-        monitor = desktop.screenGeometry(1)
+        desktop = QtGui.QGuiApplication.screens()
+        monitor = desktop[1].geometry()
         secondaryScreen.move(monitor.x(), monitor.y())
         secondaryScreen.showFullScreen()
         

@@ -1,5 +1,5 @@
 from virtual_tabletop.Connections import FirebaseConnector
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from virtual_tabletop.UI.MainWindow import MainWindow
 from virtual_tabletop.Data.GameCollection import GameCollection
 from os import sys, path
@@ -10,10 +10,9 @@ def launch():
     app = QtWidgets.QApplication(sys.argv)
 
     #check environment
-    # desktop = QtWidgets.QDesktopWidget()
-    # count = desktop.screenNumber()
-    # if count < 2:
-    #     raise EnvironmentError('Desktop count below minimum required number\nExpected >=2 but received ' + str(count))
+    count = len(QtGui.QGuiApplication.screens())
+    if count < 2:
+        raise EnvironmentError('Desktop count below minimum required number\nExpected >=2 but received ' + str(count))
 
 
     #credentials

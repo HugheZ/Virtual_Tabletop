@@ -38,8 +38,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.gamesArea = QtWidgets.QMdiArea(parent=self.secondaryScreen)
         secondaryScreen.setCentralWidget(self.gamesArea)
         desktop = QtGui.QGuiApplication.screens()
-        monitor = desktop[1].geometry()
-        secondaryScreen.move(monitor.x(), monitor.y())
+        self.secondMonitor = desktop[1].geometry()
+        secondaryScreen.move(self.secondMonitor.x(), self.secondMonitor.y())
         secondaryScreen.showFullScreen()
         
         #Connect slots and signals
@@ -140,6 +140,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Loads the specified game to the open games\n
         game: the Game to load
         '''
+        #open game, link to local list, and load onto subwindow
         self.openGamesList.append(game)
         self.openGames.addItem(game.name)
         #TODO: link loaded game with screen to enable closing on main window
@@ -149,9 +150,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         label.setPixmap(pixm)
         subwin = QtWidgets.QMdiSubWindow()
         subwin.setWidget(label)
-        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         subwin.setWindowTitle(game.name)
+        #add to boards
+        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        #scale image
+        (x,y) = self.__calculateSize(game.width, game.height)
+        label.resize(x,y)
+        subwin.resize(x,y)
+        #TODO: set subwindow to not resize
+        #show
         subwin.show()
+
+    def __calculateSize(self, width: Union[int, float], height: Union[int, float]):
+        '''Returns a width and height to use for resizing boards\n
+        width: width of the board in inches\n
+        height: height of the board in inches\n
+        '''
+        #get x and y DPI (dots / inch)
+        xDPI = self.secondaryScreen.physicalDpiX()
+        yDPI = self.secondaryScreen.physicalDpiY()
+        print("DPI: ({0},{1})".format(xDPI, yDPI))
+        #get pixel sizes for board
+        # pixels = inch * dots/inch
+        return (width * xDPI, height * yDPI)
 
     def toggleBack(self, toggle: Optional[bool] = None):
         '''Toggles whether or not the back button is enabled\n

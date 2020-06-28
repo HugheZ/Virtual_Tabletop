@@ -75,8 +75,8 @@ class Game():
         '''
         return '{0}: <{1}, {2}> in., local: {3}, online: {4}'.format(
             self.name, self.width, self.height,
-            '✓' if self.local else 'X',
-            '✓' if self.online else 'X' 
+            'YES' if self.local else 'NO',
+            'YES' if self.online else 'NO' 
         )
     
     def jsonify(self):

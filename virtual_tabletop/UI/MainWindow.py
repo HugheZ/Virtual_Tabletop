@@ -144,20 +144,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.openGamesList.append(game)
         self.openGames.addItem(game.name)
         #TODO: link loaded game with screen to enable closing on main window
+        #initialize subwindow
         label = QtWidgets.QLabel()
         pixm = QtGui.QPixmap()
         pixm.loadFromData(game.getImage())
-        label.setPixmap(pixm)
         subwin = QtWidgets.QMdiSubWindow()
         subwin.setWidget(label)
         subwin.setWindowTitle(game.name)
-        #add to boards
-        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         #scale image
         (x,y) = self.__calculateSize(game.width, game.height)
         label.resize(x,y)
         subwin.resize(x,y)
-        #TODO: set subwindow to not resize
+        label.setPixmap(pixm.scaled(label.size()))
+        #add to boards
+        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         #show
         subwin.show()
 
@@ -201,6 +201,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Slot defined to parrot signal from selected tile to the DB controller\n
         gameSelected: the game / game collection selected by the user
         '''
+        print(gameSelected)
         game = self.data.find(gameSelected)
         #if collection, go down to that collection
         if type(game) == GameCollection:

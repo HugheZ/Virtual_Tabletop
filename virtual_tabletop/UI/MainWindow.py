@@ -140,10 +140,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Loads the specified game to the open games\n
         game: the Game to load
         '''
-        #open game, link to local list, and load onto subwindow
-        self.openGamesList.append(game)
+        #open game
         self.openGames.addItem(game.name)
-        #TODO: link loaded game with screen to enable closing on main window
         #initialize subwindow
         label = QtWidgets.QLabel()
         pixm = QtGui.QPixmap()
@@ -160,6 +158,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         #show
         subwin.show()
+        #link subwindow with local games list
+        toAdd = (game, subwin)
+        self.openGamesList.append(toAdd)
 
     def __calculateSize(self, width: Union[int, float], height: Union[int, float]):
         '''Returns a width and height to use for resizing boards\n

@@ -1,4 +1,5 @@
 import requests
+from os import path
 
 class Game():
     '''
@@ -28,6 +29,8 @@ class Game():
         self.__board = None
         #actual preview image, hidden for abstraction
         self.__preview = None
+        #content type, used for gif playing
+        self.__isGif = False
 
         #TODO: load board if local
 
@@ -38,19 +41,32 @@ class Game():
         #TODO: if local, copy image to local storage
     
     def loadImage(self):
+        '''Loads the image, prioritizing local storage. Also refreshes content type.
+        '''
         ret = None
         #use local first
         if self.local:
             with open(self.__board_path) as f:
                 ret = f.read()
+            self.__isGif = path.splitext(self.__board_path)[1].lower() == '.gif'
         else:
-            ret = requests.get(self.board).content
+            resp = requests.get(self.board)
+            ret = resp.content
+            content = resp.headers.get('content-type')
+            self.__isGif = content == 'image/gif'
         self.__board = ret
 
     def getImage(self):
+        '''Returns the binary data for this game's board image
+        '''
         if self.__board is None:
             self.loadImage()
         return self.__board
+    
+    def isGif(self):
+        '''Returns true if the board to be downloaded is a gif, else false'''
+        return self.__isGif
+        
 
     def getPreview(self):
         '''Returns the string preview image

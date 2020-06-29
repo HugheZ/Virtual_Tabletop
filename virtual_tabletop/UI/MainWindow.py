@@ -177,7 +177,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         caller: the listwidgetitem to remove from the list
         '''
         i = self.openGames.row(caller)
-        print('Game {0}: {1}'.format(i, self.openGamesList[i][0]))
+        #remove from UI
+        item = self.openGames.takeItem(i)
+        del item
+        #close and remove internal
+        self.openGamesList[i][1].close()
+        del self.openGamesList[i]
 
 
     def __calculateSize(self, width: Union[int, float], height: Union[int, float]):

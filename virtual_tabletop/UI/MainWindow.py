@@ -142,10 +142,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Loads the specified game to the open games\n
         game: the Game to load
         '''
+        #don't add if game is already open
+        for g in self.openGamesList:
+            if g[0] == game: return
         #initialize subwindow
         label = QtWidgets.QLabel()
-        pixm = QtGui.QPixmap()
-        pixm.loadFromData(game.getImage())
         subwin = QtWidgets.QMdiSubWindow()
         subwin.setWidget(label)
         subwin.setWindowTitle(game.name)
@@ -153,7 +154,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         (x,y) = self.__calculateSize(game.width, game.height)
         label.resize(x,y)
         subwin.resize(x,y)
-        label.setPixmap(pixm.scaled(label.size()))
+        #load movie if game board is gif, else load pixmap
+        data = game.getImage()
+        if game.isGif():
+            movie = QtGui.QMovie(data, b'GIF', label)
+            movie.setScaledSize(label.size())
+            movie.start()
+            label.setMovie(movie)
+        else:
+            pixm = QtGui.QPixmap()
+            pixm.loadFromData(data)
+            label.setPixmap(pixm.scaled(label.size()))
         #add to boards
         self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
         #show
@@ -181,8 +192,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         item = self.openGames.takeItem(i)
         del item
         #close and remove internal
-        self.openGamesList[i][1].close()
-        del self.openGamesList[i]
+        win = self.openGamesList[i][1]
+        win.findChild(QtGui.QMovie).stop()
+        win.close()
+        g = self.openGamesList[i][0]
+        if g.isGif():
+            g.closeStream()
+        self.openGamesList.pop(i)
+        #REALLY bad code, but we have to search for the qmovie and stop or else we get a seg fault
+        #APPARENTLY PyQT, or I guess QT, doesn't stop movies when their parents are deleted when running from a buffer. Dumb.
 
 
     def __calculateSize(self, width: Union[int, float], height: Union[int, float]):
@@ -193,7 +211,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #get x and y DPI (dots / inch)
         xDPI = self.secondaryScreen.physicalDpiX()
         yDPI = self.secondaryScreen.physicalDpiY()
-        print("DPI: ({0},{1})".format(xDPI, yDPI))
         #get pixel sizes for board
         # pixels = inch * dots/inch
         return (width * xDPI, height * yDPI)
@@ -225,7 +242,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Slot defined to parrot signal from selected tile to the DB controller\n
         gameSelected: the game / game collection selected by the user
         '''
-        print(gameSelected)
         game = self.data.find(gameSelected)
         #if collection, go down to that collection
         if type(game) == GameCollection:

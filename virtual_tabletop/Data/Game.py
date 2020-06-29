@@ -1,4 +1,5 @@
 import requests
+from PyQt5 import QtCore
 from os import path
 
 class Game():
@@ -46,18 +47,23 @@ class Game():
         ret = None
         #use local first
         if self.local:
-            with open(self.__board_path) as f:
+            with open(self.__board_path, 'rb') as f:
                 ret = f.read()
             self.__isGif = path.splitext(self.__board_path)[1].lower() == '.gif'
         else:
             resp = requests.get(self.board)
             ret = resp.content
-            content = resp.headers.get('content-type')
-            self.__isGif = content == 'image/gif'
+            head = resp.headers.get('content-type')
+            self.__isGif = head == 'image/gif'
+        if self.__isGif:
+            self.array = QtCore.QByteArray(ret)
+            self.buff = QtCore.QBuffer(self.array)
+            self.buff.open(QtCore.QIODevice.ReadOnly)
+            ret = self.buff
         self.__board = ret
 
     def getImage(self):
-        '''Returns the binary data for this game's board image
+        '''Returns the binary data for this game's board image. If the image is instead a gif, returns a binary stream for the data.
         '''
         if self.__board is None:
             self.loadImage()
@@ -79,6 +85,15 @@ class Game():
             if self.preview_image is None:
                 return None
             return requests.get(self.preview_image).content
+    
+    def closeStream(self):
+        '''Finalizer to close streams if open'''
+        if self.__isGif:
+            if not self.array.isEmpty(): self.array.clear()
+            if self.buff.isOpen(): self.buff.close()
+            del self.array
+            del self.buff
+            self.__board = None
     
     def __eq__(self, obj):
         '''Returns true if self and obj are the same game

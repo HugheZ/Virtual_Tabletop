@@ -27,10 +27,10 @@ class Ui_openGame(object):
         self.horizontalLayout.addWidget(self.gameName)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.pushButton = QtWidgets.QPushButton(openGame)
-        self.pushButton.setMaximumSize(QtCore.QSize(20, 16777215))
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
+        self.closeButton = QtWidgets.QPushButton(openGame)
+        self.closeButton.setMaximumSize(QtCore.QSize(20, 16777215))
+        self.closeButton.setObjectName("closeButton")
+        self.horizontalLayout.addWidget(self.closeButton)
 
         self.retranslateUi(openGame)
         QtCore.QMetaObject.connectSlotsByName(openGame)
@@ -39,4 +39,4 @@ class Ui_openGame(object):
         _translate = QtCore.QCoreApplication.translate
         openGame.setWindowTitle(_translate("openGame", "Form"))
         self.gameName.setText(_translate("openGame", "NAME"))
-        self.pushButton.setText(_translate("openGame", "X"))
+        self.closeButton.setText(_translate("openGame", "X"))

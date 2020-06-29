@@ -2,6 +2,7 @@ from virtual_tabletop.UI.MainWindow_UI import Ui_VTTMainWindow
 from virtual_tabletop.UI.Tile import Tile
 from virtual_tabletop.UI.Settings import Settings
 from virtual_tabletop.UI.Login import LoginDialog
+from virtual_tabletop.UI.OpenGame import OpenGame
 from PyQt5 import QtWidgets, QtCore, QtGui
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
@@ -9,6 +10,7 @@ from typing import Optional, Union
 from virtual_tabletop.Connections.FirebaseConnector import Connector
 from os import path
 import json
+from functools import partial
 
 class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     '''A simple wrapper class for the auto-generated MainWindow_UI-defined main window class'''
@@ -140,8 +142,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''Loads the specified game to the open games\n
         game: the Game to load
         '''
-        #open game
-        self.openGames.addItem(game.name)
         #initialize subwindow
         label = QtWidgets.QLabel()
         pixm = QtGui.QPixmap()
@@ -161,6 +161,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #link subwindow with local games list
         toAdd = (game, subwin)
         self.openGamesList.append(toAdd)
+        #add to open games list
+        litem = QtWidgets.QListWidgetItem(parent=self.openGames)
+        customUI = OpenGame(parent=self.openGames)
+        litem.setSizeHint(customUI.sizeHint())
+        customUI.gameName.setText(game.name)
+        self.openGames.addItem(litem)
+        self.openGames.setItemWidget(litem, customUI)
+        #link closing event
+        customUI.closeButton.clicked.connect(partial(self.__closeGame,litem))
+
+    
+    def __closeGame(self, caller:QtWidgets.QListWidgetItem):
+        '''Closes the signaled game by removing it from the open games list and games subwindow\n
+        caller: the listwidgetitem to remove from the list
+        '''
+        i = self.openGames.row(caller)
+        print('Game {0}: {1}'.format(i, self.openGamesList[i][0]))
+
 
     def __calculateSize(self, width: Union[int, float], height: Union[int, float]):
         '''Returns a width and height to use for resizing boards\n

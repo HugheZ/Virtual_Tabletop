@@ -326,7 +326,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #get the user-given game
         created = self.openNewGameDialog()
 
-        #TODO: save by config preferences
+        #if game is not none, save
+        if created is not None:
+            print(created)
+            #TODO
     
     #TODO: slots for making new game collection
     

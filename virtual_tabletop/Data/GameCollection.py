@@ -30,7 +30,6 @@ class GameCollection():
             self.games.append(GameCollection)
         elif type(game) == tuple:
             if game[1]['type'] == 'game':
-                print(game[1])
                 self.games.append(Game(game[0],
                     game[1].get('width'),
                     game[1].get('height'),
@@ -54,12 +53,10 @@ class GameCollection():
             l = lambda g, gother : g == gother
             if type(game) == str:
                 l = lambda g, gother : g == gother.name
-            for g in self.games:
-                print(str(g) + ' == ' + str(game) + ': ' + str(l(game, g)))
             return next(val for x, val in enumerate(self.games) if l(game, val))
         except Exception as e:
             print(str(e))
-            return 
+            return None
     
     def __getitem__(self, key):
         '''Overrides the [] operator'''

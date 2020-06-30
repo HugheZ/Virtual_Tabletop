@@ -21,9 +21,12 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         self.setupUi(self)
 
         #set up actions
-        cmds = ['Upload','Download','Delete...']
-        for c in cmds:
-            self.changeGameActions.addAction(QtWidgets.QAction(c, self.changeGameActions))
+        self.upload_action = QtWidgets.QAction('Upload', self.changeGameActions)
+        self.download_action = QtWidgets.QAction('Download', self.changeGameActions)
+        self.delete_action = QtWidgets.QAction('Delete...', self.changeGameActions)
+        self.changeGameActions.addAction(self.upload_action)
+        self.changeGameActions.addAction(self.download_action)
+        self.changeGameActions.addAction(self.delete_action)
 
         # TODO: AAAA it's 1:20AM and it's dumb that QT auto-sets all children to have a drop shadow!
         # self.shadow = QtWidgets.QGraphicsDropShadowEffect(self)
@@ -46,7 +49,6 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         game: a game or game collection to be loaded to this tile
         '''
         if type(game) == Game:
-            print(game)
             self.gameName.setText(game.name)
             img = game.getPreview()
             if img:
@@ -55,11 +57,17 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
                 self.gameImage.setPixmap(pm)
             self.localAvailable.setEnabled(game.local)
             self.cloudAvailable.setEnabled(game.online)
+            #set actions available depending on location
+            if game.local:
+                self.download_action.setEnabled(False)
+            if game.online:
+                self.upload_action.setEnabled(False)
         elif type(game) == GameCollection:
-            print(game)
             self.gameName.setText(game.name)
             self.gameImage.setPixmap(QtGui.QPixmap(":/icons/collection.png"))
             self.loadButton.setText('Open Collection')
+            #remove menu button if collection
+            self.changeGameActions.deleteLater()
         else:
             raise Exception('Tiles only support loading Game or GameCollection data')
     

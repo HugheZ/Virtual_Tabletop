@@ -20,6 +20,11 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         super(Tile, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
+        #set up actions
+        cmds = ['Upload','Download','Delete...']
+        for c in cmds:
+            self.changeGameActions.addAction(QtWidgets.QAction(c, self.changeGameActions))
+
         # TODO: AAAA it's 1:20AM and it's dumb that QT auto-sets all children to have a drop shadow!
         # self.shadow = QtWidgets.QGraphicsDropShadowEffect(self)
         # self.shadow.setBlurRadius(3)
@@ -31,7 +36,6 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         if game:
             self.loadGame(game)
         
-        print(self.gameName.text())
 
         #set up signals for pressing buttons
         self.loadButton.clicked.connect(self.__game_on_click)

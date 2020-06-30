@@ -51,14 +51,14 @@ class NewGame(QtWidgets.QDialog, Ui_newGame):
     
     @QtCore.pyqtSlot()
     def __save(self):
-        '''Saves the dialog components and returns it with a save message to the caller
+        '''Saves the dialog components and returns it with a save message to the caller, defaults preview image to null if none is provided
         '''
         self.game['name'] = self.nameEdit.text()
-        if self.game['name'] == '': self.game['name'] = self.nameEdit.placeholderText()
         self.game['width'] = self.widthSpin.value()
         self.game['height'] = self.heightSpin.value()
         self.game['board'] = self.boardImgSource.text()
         self.game['preview_image'] = self.previewImgSource.text()
+        if self.game['preview_image'] == '': self.game['preview_image'] = None
         self.done(QtWidgets.QMessageBox.Save)
 
     @QtCore.pyqtSlot()

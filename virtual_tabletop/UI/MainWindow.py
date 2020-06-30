@@ -3,6 +3,7 @@ from virtual_tabletop.UI.Tile import Tile
 from virtual_tabletop.UI.Settings import Settings
 from virtual_tabletop.UI.Login import LoginDialog
 from virtual_tabletop.UI.OpenGame import OpenGame
+from virtual_tabletop.UI.NewGame import NewGame
 from PyQt5 import QtWidgets, QtCore, QtGui
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
@@ -50,6 +51,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.backButton.clicked.connect(self.__return_in_hierarchy)
         self.actionLog_out.triggered.connect(self.__log_out_confirm)
         self.actionLogin.triggered.connect(self.__credentials_launch)
+        self.actionGame.triggered.connect(self.__create_game)
     
     def connectToSource(self, source: Connector):
         '''Connects this window to a data source\n
@@ -143,8 +145,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         game: the Game to load
         '''
         #don't add if game is already open
-        for g in self.openGamesList:
-            if g[0] == game: return
+        try:
+            ret = next(val for x, val in enumerate(self.openGamesList) if val[0] == game)
+            if ret is not None:
+                return
+        except Exception:
+            pass
         #initialize subwindow
         label = QtWidgets.QLabel()
         subwin = QtWidgets.QMdiSubWindow()
@@ -313,8 +319,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             self.login(creds['email'], creds['password'])
 
 
+    @QtCore.pyqtSlot()
+    def __create_game(self):
+        '''Launches the new game dialog and saves the game local/cloud by config preferences
+        '''
+        #get the user-given game
+        created = self.openNewGameDialog()
+
+        #TODO: save by config preferences
     
-    #TODO: slots for logging in, making new game / game collection
+    #TODO: slots for making new game collection
     
 
 
@@ -342,4 +356,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
 
         if dlg.exec_() == QtWidgets.QMessageBox.Ok:
             return creds
+        else: return None
+    
+    def openNewGameDialog(self):
+        '''Opens the new game dialog that asks for user-created games
+        '''
+        #game metadata
+        game = {'type':'game', 'name':None, 'width':None, 'height':None, 'board':None, 'preview_image':None}
+
+        #open the dialog
+        dlg = NewGame(game=game, parent=self)
+
+        #return only on save
+        if dlg.exec_() == QtWidgets.QMessageBox.Save:
+            return game
         else: return None

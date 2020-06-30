@@ -193,7 +193,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         del item
         #close and remove internal
         win = self.openGamesList[i][1]
-        win.findChild(QtGui.QMovie).stop()
+        mov = win.findChild(QtGui.QMovie)
+        if mov is not None: mov.stop()
         win.close()
         g = self.openGamesList[i][0]
         if g.isGif():

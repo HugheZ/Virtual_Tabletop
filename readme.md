@@ -26,3 +26,14 @@ For assistance on setting up a Firebase database and acquiring API keys, check t
 * Pyrebase API: https://github.com/thisbejim/Pyrebase
 
 To get an API key for your database, go to Home > Add app > Web on your Firebase console. Follow the instructions and copy your key.
+
+# TODO
+These are the outstanding tasks going forward that must be completed:
+1. Enable downloading cloud boards for local storage
+2. Enable auto-downloading by process outlined in configuration
+3. Enable auto-uploading by process outlined in configuration
+4. Save config changes, reload local boards on save directory change
+5. Handle saving on game creation
+6. Handle creating new game collections
+7. Style (especially tiles, which should have drop shadows)
+8. On pushing files to storage, should retain HTTP endpoint for saving to database

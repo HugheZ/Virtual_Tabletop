@@ -19,10 +19,8 @@ class Game():
         online: boolean whetehr the board is online or not
         '''
         self.name = name
-        self.preview_image = preview_image
         self.width = width
         self.height = height
-        self.board = board
         self.local = local
         self.online = online
 
@@ -37,10 +35,18 @@ class Game():
         self.__board_path = None
         self.__preview_path = None
 
+        #online integration
+        self.__preview_url = None
+        self.__board_url = None
+
         #if local, copy image to local storage
         if self.local:
             self.__board_path = board
             self.__preview_path = preview_image
+        #if online, copy to storage
+        if self.online:
+            self.__board_url = board
+            self.__preview_url = preview_image
     
     def loadImage(self):
         '''Loads the image, prioritizing local storage. Also refreshes content type.
@@ -52,7 +58,7 @@ class Game():
                 ret = f.read()
             self.__isGif = path.splitext(self.__board_path)[1].lower() == '.gif'
         else:
-            resp = requests.get(self.board)
+            resp = requests.get(self.__board_url)
             ret = resp.content
             head = resp.headers.get('content-type')
             self.__isGif = head == 'image/gif'
@@ -82,7 +88,7 @@ class Game():
             with open(self.__preview_path) as f:
                 ret = f.read()
         else:
-            ret = requests.get(self.preview_image).content
+            ret = requests.get(self.__preview_url).content
         self.__preview = ret
 
     def getPreview(self):
@@ -104,7 +110,7 @@ class Game():
     def __eq__(self, obj):
         '''Returns true if self and obj are the same game
         '''
-        return isinstance(obj, Game) and self.name == obj.name and self.height == obj.height and self.width == obj.width and self.board == obj.board and self.preview_image == obj.preview_image
+        return isinstance(obj, Game) and self.name == obj.name and self.height == obj.height and self.width == obj.width
 
     def __str__(self):
         '''Returns a string representation of this Game object:\n
@@ -116,15 +122,36 @@ class Game():
             'YES' if self.online else 'NO' 
         )
     
-    def jsonify(self):
-        '''Returns a json representation of this game for saving purposes'''
+    def jsonify(self, online:bool=True):
+        '''Returns a json representation of this game for saving purposes\n
+        online: should the game be prepped with urls? False default should be prepped with paths
+        '''
         return {
             "type": "game",
             "name": self.name,
             "width": self.width,
             "height": self.height,
-            "board": self.board,
-            "preview_image": self.preview_image
+            "board": self.__board_url if online else self.__board_path,
+            "preview_image": self.__preview_url if online else self.__preview_path
         }
+    
+    def merge(self, other:'Game'):
+        '''Merges self and the other game. Takes information from other and merges into self.\n
+        NOTE: if other has local files, self will take local files to avoid network traffic.
+        '''
+        #are these games the same? If not, cannot merge
+        if self != other:
+            raise ValueError("Merge could not be completed: merge source is not the same as target.")
 
-        
+        #same game, take values
+        if self.local and other.online:
+            self.__preview_url = other.__preview_url
+            self.__board_url = other.__board_url
+            self.online = True
+        elif other.local and self.online:
+            self.__preview_path = other.__preview_path
+            self.__board_path = other.__board_path
+            self.local = True
+        else:
+            #both same location, ignore
+             return

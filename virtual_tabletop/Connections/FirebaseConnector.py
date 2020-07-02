@@ -78,18 +78,27 @@ class Connector:
     def _getLevel(self):
         '''Gets the current level in the database and fills underlying data field'''
         #TODO: this silently ignores errors and returns no data, should only catch permission exceptions if not logged in, otherwise it should send up the call stack. Maybe check __user not None?
+        onlineData = None
+        localData = None
         try:
             data = self.__db.child(self.__location).get().val()
 
             #parse the data (must be as collection)
-            self.__data = GameCollection(self.__locationname, data)
+            onlineData = GameCollection(self.__locationname, data)
         except Exception as e:
             self.__data = None
 
+        localData = None #TODO
+
+        #merge if online data is retrieved and set data to the emrged set
+        if onlineData is not None:
+            onlineData.merge(localData)
+            self.__data = onlineData
+        else:
+            self.__data = localData
+
         #notify any watcher
         self.__updateWatchers()
-
-        #TODO: still need to get local data
     
     def refresh(self):
         '''Publicly visible refresh method to update pulled data
@@ -133,7 +142,7 @@ class Connector:
         self.__upload(toAdd, location)
 
         #good to go, jsonify and parse
-        self.__db.child(location).child(toAdd.name).set(toAdd.jsonify())
+        self.__db.child(location).child(toAdd.name).set(toAdd.jsonify(True))
     
     def __upload(self, toAdd: Union[Game, GameCollection], location: str):
         '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n

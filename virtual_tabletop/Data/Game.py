@@ -33,13 +33,14 @@ class Game():
         #content type, used for gif playing
         self.__isGif = False
 
-        #TODO: load board if local
-
-        #TODO: local board field integration
+        #local board field integration
         self.__board_path = None
         self.__preview_path = None
 
-        #TODO: if local, copy image to local storage
+        #if local, copy image to local storage
+        if self.local:
+            self.__board_path = board
+            self.__preview_path = preview_image
     
     def loadImage(self):
         '''Loads the image, prioritizing local storage. Also refreshes content type.
@@ -72,19 +73,24 @@ class Game():
     def isGif(self):
         '''Returns true if the board to be downloaded is a gif, else false'''
         return self.__isGif
-        
+    
+    def loadPreview(self):
+        '''Loads the preview, prioritizing local storage.
+        '''
+        ret = None
+        if self.local:
+            with open(self.__preview_path) as f:
+                ret = f.read()
+        else:
+            ret = requests.get(self.preview_image).content
+        self.__preview = ret
 
     def getPreview(self):
         '''Returns the string preview image
         '''
-        if self.local:
-            if self.__preview_path is None:
-                return None
-            return open(self.__preview_path)
-        else:
-            if self.preview_image is None:
-                return None
-            return requests.get(self.preview_image).content
+        if self.__preview is None:
+            self.loadPreview()
+        return self.__preview
     
     def closeStream(self):
         '''Finalizer to close streams if open'''

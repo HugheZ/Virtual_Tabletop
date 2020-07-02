@@ -4,6 +4,8 @@ key.json
 credentials.json
 #don't track config file
 config.json
+#don't track default local boards data
+localboards/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

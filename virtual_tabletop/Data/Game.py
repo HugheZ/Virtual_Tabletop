@@ -85,7 +85,7 @@ class Game():
         '''
         ret = None
         if self.local:
-            with open(self.__preview_path) as f:
+            with open(self.__preview_path, 'rb') as f:
                 ret = f.read()
         else:
             ret = requests.get(self.__preview_url).content

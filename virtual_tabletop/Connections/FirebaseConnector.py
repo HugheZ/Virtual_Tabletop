@@ -1,4 +1,5 @@
-import pyrebase, json, os
+import pyrebase, json, glob
+from os import path
 from virtual_tabletop.Data.Game import Game 
 from virtual_tabletop.Data.GameCollection import GameCollection
 from weakref import ref, WeakMethod
@@ -7,7 +8,7 @@ from typing import Callable, Mapping, Union, Optional
 class Connector:
     '''A simple connector to Firestore via the Pyrebase wrapper API found: https://github.com/thisbejim/Pyrebase'''
 
-    def __init__(self, key: Union[str, Mapping], email: Optional[str] = None, password: Optional[str] = None, savedir: str = os.path.join('.','localboards')):
+    def __init__(self, key: Union[str, Mapping], email: Optional[str] = None, password: Optional[str] = None, savedir: str = path.join('.','localboards')):
         '''Init method:\n
             key: API key JSON for your specific firebase instance\n
             email: backup string email to sign in\n
@@ -27,6 +28,8 @@ class Connector:
         self.__location = ''
         #location ending
         self.__locationname = ''
+        #get local default save location
+        self.__savedir = savedir
 
         #configure pyrebase link
         self.__fb = pyrebase.initialize_app(self.__config)
@@ -88,7 +91,21 @@ class Connector:
         except Exception as e:
             self.__data = None
 
-        localData = None #TODO
+        #set up blank game collection for this level local
+        localData = GameCollection(self.__locationname)
+        
+        #get all json files at ~savedir~/self.getLocation() and iterate
+        for jsn in glob.iglob(path.join(self.__savedir, self.getLocation(), '*.json')):
+            try:
+                with open(jsn) as f:
+                    data = json.load(f)
+                    try: #try to parse and load each json, skipping if it can't be parsed
+                        game = Game(data['name'], data['width'], data['height'], data['preview_image'], data['board'], True, False)
+                        localData.addGame(game)
+                    except:
+                        print('Failed to parse game json')
+            except:
+                print('Failed to open json')
 
         #merge if online data is retrieved and set data to the emrged set
         if onlineData is not None:
@@ -154,8 +171,8 @@ class Connector:
             #push to file storage
             # will be path: /Collection/.../name_board.jpg + name_preview.jpg
             #NOTE: ignoring file name as we will make our own via naming conventions above, just need extension
-            board_type = os.path.splitext(toAdd.__board_path)[1]
-            prev_type = os.path.splitext(toAdd.__preview_path)[1]
+            board_type = path.splitext(toAdd.__board_path)[1]
+            prev_type = path.splitext(toAdd.__preview_path)[1]
             self.__storage.child(location).child(toAdd.name + '_board' + board_type).put(toAdd.__board_path)
             self.__storage.child(location).child(toAdd.name + '_preview' + prev_type).put(toAdd.__board_path)
             #TODO: after push, retain new http endpoint to pull images from

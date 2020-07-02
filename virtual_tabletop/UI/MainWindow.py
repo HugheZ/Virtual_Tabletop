@@ -159,7 +159,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #scale image
         (x,y) = self.__calculateSize(game.width, game.height)
         label.resize(x,y)
-        subwin.resize(x,y)
         #load movie if game board is gif, else load pixmap
         data = game.getImage()
         if game.isGif():

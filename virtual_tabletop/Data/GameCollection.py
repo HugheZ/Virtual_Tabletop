@@ -105,3 +105,22 @@ class GameCollection():
         "games": {game.name : game.jsonify() for game in self.games}
         }
         
+    def merge(self, other:'GameCollection'):
+        '''Merges self and the other game collection. Takes information from other and merges into self.\n
+        NOTE: If any games exist in both collections, other will be merged into self. If any exist not in other, it will be added as-is
+        '''
+        notin = []
+        #TODO: gotta optimize this. Without sorting, this is gonna be at an n^2 algorithm
+        for gother in other:
+            found = False
+            for game in self.games:
+                #same, merge
+                if game == gother:
+                    #ducktype the merge, both game and gamecollection have this function
+                    game.merge(gother)
+                    found = True
+            #after, if not found, add to notin list
+            if not found:
+                notin.append(gother)
+        #extend list for all not in this game
+        self.games.extend(notin)

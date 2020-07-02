@@ -13,3 +13,16 @@ Due to the lack of an official or supported client-side firestore model, this ap
 
 # Environment
 This application requires Python 3.x as well as an internet connection and is intended for a dual-screen Raspberry Pi. It assumes the main screen is a hidden screen to be used by the game master and the second screen is an upward-facing monitor inlaid into a table. The primary screen is used to select and close game boards.
+
+# Supported Filetypes and Configurations
+This application supports board images in .jpeg, .png, and .gif file formats, and it parses file contents to determine ways to maintain image presentation. For example, if a board is uploaded as an animated gif, the application will utilize QT's QMovie object instead of its QPixmap object to preserve the animation. This, however, requires that boards can only be open one time each in order to avoid duplicate use of QT buffered readers and possible segmentation faults.
+
+Additionally, the application supports changing Firebase sources, hot-swapping local storage locations, automatically uploading new created boards, automatically saving opened online boards, and operating without an online board source. These preferences can be changed in Settings > Preferences...
+
+# Moving Forward
+For assistance on setting up a Firebase database and acquiring API keys, check the Firebase tutorials located below. For a demo project setup and tutorial on how to make your own physical table for this application, see the pictures posted in the 'table' directory (Once this is completed).
+
+* Realtime Database Guide: https://firebase.google.com/docs/database
+* Pyrebase API: https://github.com/thisbejim/Pyrebase
+
+To get an API key for your database, go to Home > Add app > Web on your Firebase console. Follow the instructions and copy your key.

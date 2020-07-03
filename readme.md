@@ -37,3 +37,4 @@ These are the outstanding tasks going forward that must be completed:
 6. Handle creating new game collections
 7. Style (especially tiles, which should have drop shadows)
 8. On pushing files to storage, should retain HTTP endpoint for saving to database
+9. Ensure app functionality if no Firebase is linked (resort to only local boards)

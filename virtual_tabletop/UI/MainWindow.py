@@ -16,7 +16,7 @@ from functools import partial
 class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     '''A simple wrapper class for the auto-generated MainWindow_UI-defined main window class'''
 
-    def __init__(self, source: Optional[Connector] = None, secondaryWindowCoord: Optional[tuple] = None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
@@ -27,13 +27,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         #open games local list, separate from openGames widget
         self.openGamesList = []
 
-        #connect data source if applicable
-        if source:
-            try:
-                self.connectToSource(source)
-            except Exception as e:
-                self.showError(e)
-        
+        #connect data source
+        config = None
+        source = None
+        with open('config.json') as f:
+            config = json.load(f)
+        #get credentials if we need to
+        creds = {'email': None, 'password': None}
+        if config.get('login_on_startup'):
+            creds = self.getCredentials()
+        source = Connector(key=config.get('key_path'), savedir=config['savedir'])
+        try:
+            source.login(creds['email'], creds['password'])
+        except Exception as e:
+            self.showError(e)
+        try:
+            self.connectToSource(source, True)
+        except Exception as e:
+            self.showError(e)
+        #set up login/out toggle
+        self.tryToggleLogin(False)
+
         #open secondary window if coords are given
         #if secondaryWindowCoord is not None:
         secondaryScreen = QtWidgets.QMainWindow(parent=self, flags=QtCore.Qt.Window)
@@ -53,23 +67,57 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.actionLogin.triggered.connect(self.__credentials_launch)
         self.actionGame.triggered.connect(self.__create_game)
     
-    def connectToSource(self, source: Connector):
+    def connectToSource(self, source: Connector, echo:bool = False):
         '''Connects this window to a data source\n
-        source: the source to connect to
+        source: the source to connect to\n
+        echo: whether to echo error details
         '''
         self.source = source
         self.source.watch(self, self.__updateData)
+        self.source.refresh(echo)
+    
+    def getCredentials(self):
+        '''Queries the user for credentials or reads them from file if specified by user that they should be stoed.
+        '''
+        #parses login preferences to see if we need to also log in
+        #If config says to sign in first, do so
+        creds = None
+        config = None
+        with open('config.json') as f:
+            config = json.load(f)
+        #if we have stored credentials, use them
+        if config['storecreds']:
+            with open('credentials.json') as c:
+                creds = json.load(c)
+            if creds.get('password') is None or creds.get('email') is None:
+                #no stored credentials, so sign in like normal
+                creds = self.openCredentialsDialog()
+        else: #else just sign in
+            creds = self.openCredentialsDialog()
+        return creds if creds is not None else {'email': None, 'password': None}
     
     def login(self, email:str, password:str):
         '''Logs in to the connected source if one exists, else shows error\n
+        NOTE: this function also serializes credentials if chosen, need to update on better storage solution
         email: the email used to log in to firebase\n
         password: the password used to log in to firebase
         '''
         try:
             self.source.login(email, password)
+            self.source.refresh()
             self.tryToggleLogin(False)
+            #see if we need to save the credentials
+            config = None
+            with open('config.json') as f:
+                config = json.load(f)
+            if config.get('storecreds', False):
+                with open('credentials.json', 'w') as w:
+                    json.dump({"email":email, "password":password}, w)
         except Exception as e:
+            #on login error, get local info and re-enable login button
             self.showError(e)
+            self.source.refresh()
+            self.tryToggleLogin(True)
     
     def logout(self):
         '''Logs out of the connected source if already logged in, else does nothing
@@ -93,21 +141,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             json.dump(config, f)
         #rebase source
         del self.source
+        #get credentials if needed
+        creds = {'email': None, 'password': None}
+        if config.get('login_on_startup'):
+            creds = self.getCredentials()
         savedir = config.get('savedir')
         if not savedir:
             savedir = path.join('.','localboards')
-        source = Connector(key=newKey, email=config.get('email'), password=config.get('password'), savedir=savedir)
-        self.connectToSource(source)
-
+        source = Connector(key=newKey, savedir=savedir)
+        try:
+            source.login(creds['email'], creds['password'])
+        except Exception as e:
+            self.showError(e)
+        try:
+            self.connectToSource(source)
+            #toggle login
+            self.tryToggleLogin(True)
+        except Exception as e:
+            self.showError(e)
+            #reset login, didn't work
+            self.tryToggleLogin(False)
         #reset navigation
         self.toggleBack(False)
         
         #close all open boards
         self.openGamesList.clear()
         self.openGames.clear()
-
-        #toggle login
-        self.tryToggleLogin(True)
     
     def __updateData(self, data: GameCollection):
         '''Handle for updating local data and setting off UI update\n
@@ -123,7 +182,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''
         #clear current level
         self.gamesList.clear()
-        
         #if no data, return
         if data is None:
             return

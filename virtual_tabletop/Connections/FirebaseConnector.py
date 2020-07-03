@@ -8,7 +8,7 @@ from typing import Callable, Mapping, Union, Optional
 class Connector:
     '''A simple connector to Firestore via the Pyrebase wrapper API found: https://github.com/thisbejim/Pyrebase'''
 
-    def __init__(self, key: Union[str, Mapping], email: Optional[str] = None, password: Optional[str] = None, savedir: str = path.join('.','localboards')):
+    def __init__(self, key: Union[str, Mapping], savedir: str = path.join('.','localboards')):
         '''Init method:\n
             key: API key JSON for your specific firebase instance\n
             email: backup string email to sign in\n
@@ -18,7 +18,8 @@ class Connector:
 
         #get default config
         if type(key) == str:
-            self.__config = json.load(open(key))
+            with open(key) as f:
+                self.__config = json.load(f)
         elif type(key) == Mapping:
             self.__config == key
 
@@ -36,17 +37,11 @@ class Connector:
         self.__auth = self.__fb.auth()
         self.__user = None 
         
-        #login
-        self.login(email, password)
-        
         self.__db = self.__fb.database()
         self.__storage = self.__fb.storage()
 
         #set updators
         self.__watchers = []
-
-        #get base data
-        self._getLevel()
     
     def login(self, email: str, password: str):
         '''Logs into the linked DB and gets initial data\n
@@ -55,10 +50,6 @@ class Connector:
         '''
         if email and password:
             self.__user = self.__auth.sign_in_with_email_and_password(email, password)
-            if self.__user:
-                self.__location = '/'
-                self.__locationname = ''
-                self._getLevel()
     
     def logout(self):
         '''Logs out of the linked DB, resets data
@@ -66,7 +57,9 @@ class Connector:
         self.__auth.current_user = None
         self.__user = None
         self.__data = None
-        self.__updateWatchers()
+        self.__location = ''
+        self.__locationname = ''
+        self._getLevel()
     
     def isLoggedIn(self):
         '''Returns true if the current user is logged in, else false
@@ -78,22 +71,28 @@ class Connector:
         '''
         return self.__location.replace('/games', '')
 
-    def _getLevel(self):
-        '''Gets the current level in the database and fills underlying data field'''
-        #TODO: this silently ignores errors and returns no data, should only catch permission exceptions if not logged in, otherwise it should send up the call stack. Maybe check __user not None?
+    def _getLevel(self, echo:bool = False):
+        '''Gets the current level in the database and fills underlying data field\n
+        echo: boolean used to determine if the error message should echo. Should only be used on first-get to avoid annoying users
+        '''
         onlineData = None
         localData = None
+        err = None
         try:
-            data = self.__db.child(self.__location).get().val()
+            #NOTE: have to specify ID token. Pyrebase has an error that if you log out or log in after setting
+            #up databases, you'll have to specify this. I tried remaking all objects, but NOOOOO, it doesn't work.
+            #the code has a few smells with sharing information, but similar issues have been open for years so we
+            #will just have to deal with this.
+            data = self.__fb.database().child(self.__location).get(self.__user['idToken']).val()
 
             #parse the data (must be as collection)
             onlineData = GameCollection(self.__locationname, data)
         except Exception as e:
+            err = e
             self.__data = None
 
         #set up blank game collection for this level local
         localData = GameCollection(self.__locationname)
-        
         #get all json files at ~savedir~/self.getLocation() and iterate
         for jsn in glob.iglob(path.join(self.__savedir, self.getLocation(), '*.json')):
             try:
@@ -116,11 +115,16 @@ class Connector:
 
         #notify any watcher
         self.__updateWatchers()
+
+        #send error notification if requested
+        if echo and err:
+            raise err
     
-    def refresh(self):
-        '''Publicly visible refresh method to update pulled data
+    def refresh(self, echo:bool = False):
+        '''Publicly visible refresh method to update pulled data\n
+        echo: whether to echo error details
         '''
-        self._getLevel()
+        self._getLevel(echo)
 
     def goUp(self):
         '''Goes up in the DB hierarchy'''
@@ -173,8 +177,8 @@ class Connector:
             #NOTE: ignoring file name as we will make our own via naming conventions above, just need extension
             board_type = path.splitext(toAdd.__board_path)[1]
             prev_type = path.splitext(toAdd.__preview_path)[1]
-            self.__storage.child(location).child(toAdd.name + '_board' + board_type).put(toAdd.__board_path)
-            self.__storage.child(location).child(toAdd.name + '_preview' + prev_type).put(toAdd.__board_path)
+            self.__storage.child(location).child(toAdd.name + '_board' + board_type).put(toAdd.__board_path, self.__user['idToken'])
+            self.__storage.child(location).child(toAdd.name + '_preview' + prev_type).put(toAdd.__board_path, self.__user['idToken'])
             #TODO: after push, retain new http endpoint to pull images from
 
         elif type(toAdd) == GameCollection:

@@ -14,31 +14,8 @@ def launch():
     if count < 2:
         raise EnvironmentError('Desktop count below minimum required number\nExpected >=2 but received ' + str(count))
 
-
-    #credentials
-    key = None
-    email = None
-    password = None
-    savedir = path.join('.','localboards')
-
-    #open configuration file
-    if path.exists('config.json'):
-        login = False
-        storecreds = False
-        with open('config.json') as f:
-            config = json.load(f)
-            key = config.get('key_path')
-            savedir = config.get('savedir')
-            login = config.get('login_on_startup')
-            storecreds = config.get('storecreds')
-
-        #get password and email if asked
-        if storecreds and login:
-            with open('credentials.json') as f:
-                creds = json.load(f)
-                email = creds.get('email')
-                password = creds.get('password')
-    else:
+    #create files if needed
+    if not path.exists('config.json'):
         with open('config.json','w') as f:
             config = {
                 "key_path":None,
@@ -50,12 +27,8 @@ def launch():
             }
             json.dump(config, f)
 
-    #link connector
-    connector = None
-    if path.exists(key):
-        connector = FirebaseConnector.Connector(key=key, email=email, password=password, savedir=savedir)
-
-    window = MainWindow(source=connector)
+    #open window
+    window = MainWindow()
 
     window.show()
     sys.exit(app.exec())

@@ -48,6 +48,38 @@ class Game():
             self.__board_url = board
             self.__preview_url = preview_image
     
+    def getBoardPath(self, online:bool = True):
+        '''Getter for board path\n
+        online: get the online url or the offline path
+        '''
+        return self.__board_url if online else self.__board_path
+
+    def getPreviewPath(self, online:bool = True):
+        '''Getter for preview path\n
+        online: get the online url or the offline path
+        '''
+        return self.__preview_url if online else self.__preview_path
+    
+    def setBoardPath(self, val: str, online:bool = True):
+        '''Setter for board path\n
+        val: new value of the path\n
+        online: get the online url or the offline path
+        '''
+        if online:
+            self.__board_url = val
+        else:
+            self.__board_path = val
+    
+    def setPreviewPath(self, val: str, online:bool = True):
+        '''Setter for preview path\n
+        val: new value of the path\n
+        online: get the online url or the offline path
+        '''
+        if online:
+            self.__preview_url = val
+        else:
+            self.__preview_path = val
+    
     def loadImage(self):
         '''Loads the image, prioritizing local storage. Also refreshes content type.
         '''

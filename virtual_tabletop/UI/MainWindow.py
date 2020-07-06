@@ -66,6 +66,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         self.actionLog_out.triggered.connect(self.__log_out_confirm)
         self.actionLogin.triggered.connect(self.__credentials_launch)
         self.actionGame.triggered.connect(self.__create_game)
+        self.actionGame_Collection.triggered.connect(self.__create_game_collection)
+        self.actionQuit.triggered.connect(self.close)
     
     def connectToSource(self, source: Connector, echo:bool = False):
         '''Connects this window to a data source\n
@@ -401,7 +403,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             except Exception as e:
                 self.showError(e)
     
-    #TODO: slots for making new game collection
+    @QtCore.pyqtSlot()
+    def __create_game_collection(self):
+        '''Launches dialog for getting new game collection name
+        '''
+        text, ok = QtWidgets.QInputDialog.getText(self, 'New Collection', 'Input a name for your new Game Collection:')
+
+        if ok:
+            print(text)
     
 
 

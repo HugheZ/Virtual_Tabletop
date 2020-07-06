@@ -36,7 +36,7 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         # self.setGraphicsEffect(self.shadow)
 
         #load game if given
-        if game:
+        if game is not None:
             self.loadGame(game)
         
 
@@ -69,7 +69,7 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
             #remove menu button if collection
             self.changeGameActions.deleteLater()
         else:
-            raise Exception('Tiles only support loading Game or GameCollection data')
+            raise Exception('Tiles only support loading {0} or {1} data, not {2}'.format(Game, GameCollection, type(game)))
     
     @QtCore.pyqtSlot()
     def __game_on_click(self):

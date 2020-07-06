@@ -27,7 +27,7 @@ class GameCollection():
         if type(game) == Game:
                 self.games.append(game)
         elif type(game) == GameCollection:
-            self.games.append(GameCollection)
+            self.games.append(game)
         elif type(game) == tuple:
             if game[1]['type'] == 'game':
                 self.games.append(Game(game[0],
@@ -71,8 +71,13 @@ class GameCollection():
         self.games[key] = value
     
     def __eq__(self, obj):
-        '''Returns true if self and obj are the same collection'''
-        return isinstance(obj, GameCollection) and self.name == obj.name and len(self.games) == len(obj.games) and self.games == obj.games
+        '''Returns true if self and obj are the same collection (only checks name on one local collection)'''
+        if isinstance(obj, GameCollection):
+            if len(self.games) != 0 and len(obj.games) != 0:
+                return self.name == obj.name and len(self.games) == len(obj.games) and self.games == obj.games
+            else:
+                return self.name == obj.name
+        return False
 
     def __len__(self):
         '''Simple length function, returns length of games list'''

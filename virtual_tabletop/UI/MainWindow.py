@@ -409,8 +409,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         '''
         text, ok = QtWidgets.QInputDialog.getText(self, 'New Collection', 'Input a name for your new Game Collection:')
 
+        #hit ok, should add the collection
         if ok:
-            print(text)
+            coll = GameCollection(text)
+            try:
+                self.source.addToLocal(coll)
+                #if config says to auto-upload, do so
+                config = None
+                with open('config.json', 'r') as f:
+                    config = json.load(f)
+                if config['auto_upload']:
+                    self.source.addToCloud(coll)
+                #refresh
+                self.source.refresh(True)
+            except Exception as e:
+                self.showError(e)
     
 
 

@@ -1,5 +1,5 @@
 import pyrebase, json, glob
-from os import path, mkdir, makedirs
+from os import path, mkdir, makedirs, listdir
 from shutil import copyfile
 from virtual_tabletop.Data.Game import Game 
 from virtual_tabletop.Data.GameCollection import GameCollection
@@ -95,17 +95,28 @@ class Connector:
         #set up blank game collection for this level local
         localData = GameCollection(self.__locationname)
         #get all json files at ~savedir~/self.getLocation() and iterate
-        for jsn in glob.iglob(path.join(self.__savedir, self.getLocation(), '*.json')):
-            try:
-                with open(jsn) as f:
-                    data = json.load(f)
+        d = path.join(self.__savedir, self.getLocation())
+        for gfile in listdir(d):
+            #if we have a json, try to parse as a game
+            if gfile.lower().endswith('json'):
+                try:
+                    data = None
+                    with open(path.join(d, gfile)) as f:
+                        data = json.load(f)
                     try: #try to parse and load each json, skipping if it can't be parsed
                         game = Game(data['name'], data['width'], data['height'], data['preview_image'], data['board'], True, False)
                         localData.addGame(game)
                     except:
-                        print('Failed to parse game json')
-            except:
-                print('Failed to open json')
+                        err = IOError('Failed to parse game json:' + gfile)
+                except Exception as e:
+                    err = e#IOError('Failed to open json:' + gfile)
+            elif path.isdir(path.join(d, gfile)):
+                #else if it's a directory, parse as game collection
+                try:
+                    coll = GameCollection(name=gfile)
+                    localData.addGame(coll)
+                except:
+                    err = IOError('Failed to parse game collection folder')
 
         #merge if online data is retrieved and set data to the emrged set
         if onlineData is not None:
@@ -155,7 +166,6 @@ class Connector:
         #get human readable location
         if location is None:
             location = path.join(self.__savedir, self.getLocation())
-            print(location)
         
         #if game or collection, save differently, else throw error
         if isinstance(toAdd, Game):
@@ -180,7 +190,6 @@ class Connector:
             toAdd.setPreviewPath(newPreview, False)
             #save jsonified value
             jsfpth = path.join(location, toAdd.name + '.json')
-            print(jsfpth)
             with open(jsfpth, 'w+') as f:
                 json.dump(toAdd.jsonify(False), f)
         elif isinstance(toAdd, GameCollection):

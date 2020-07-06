@@ -20,8 +20,9 @@ class GameCollection():
         if type(games) == dict or type(games) == OrderedDict:
             games = games.items()
 
-        for game in games:
-            self.addGame(game)
+        if games is not None:
+            for game in games:
+                self.addGame(game)
     
     def addGame(self, game):
         if type(game) == Game:

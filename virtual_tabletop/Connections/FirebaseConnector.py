@@ -225,7 +225,8 @@ class Connector:
         self.__upload(toAdd, location)
 
         #good to go, jsonify and parse
-        self.__db.child(location).child(toAdd.name).set(toAdd.jsonify(True), self.__user['idToken'])
+        payload = toAdd.jsonify(True) if isinstance(toAdd, Game) else toAdd.jsonify()
+        self.__db.child(location).child(toAdd.name).set(payload, self.__user['idToken'])
     
     def __upload(self, toAdd: Union[Game, GameCollection], location: str):
         '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n

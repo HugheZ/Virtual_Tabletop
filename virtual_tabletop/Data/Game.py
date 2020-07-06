@@ -117,10 +117,12 @@ class Game():
         '''
         ret = None
         if self.local:
-            with open(self.__preview_path, 'rb') as f:
-                ret = f.read()
+            if self.__preview_path not in ["", None]:
+                with open(self.__preview_path, 'rb') as f:
+                    ret = f.read()
         else:
-            ret = requests.get(self.__preview_url).content
+            if self.__preview_url not in ["", None]:
+                ret = requests.get(self.__preview_url).content
         self.__preview = ret
 
     def getPreview(self):

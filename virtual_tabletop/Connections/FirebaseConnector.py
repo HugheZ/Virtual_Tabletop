@@ -164,13 +164,17 @@ class Connector:
             #move images to local storage location, then save jsonified object
             oldBoard = toAdd.getBoardPath(False)
             oldPreview = toAdd.getPreviewPath(False)
+            #move and copy board
             obtype = path.splitext(oldBoard)[1]
-            optype = path.splitext(oldPreview)[1]
             newBoard = path.join(location, toAdd.name + '_board' + obtype)
-            newPreview = path.join(location, toAdd.name + '_preview' + optype)
-            #move
             copyfile(oldBoard, newBoard)
-            copyfile(oldPreview, newPreview)
+            #now preview, skip moving if no preview is given
+            optype = None
+            newPreview = None
+            if oldPreview is not None:
+                path.splitext(oldPreview)[1]
+                path.join(location, toAdd.name + '_preview' + optype)
+                copyfile(oldPreview, newPreview)
             #update game
             toAdd.setBoardPath(newBoard, False)
             toAdd.setPreviewPath(newPreview, False)

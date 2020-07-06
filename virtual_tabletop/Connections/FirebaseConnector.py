@@ -172,8 +172,8 @@ class Connector:
             optype = None
             newPreview = None
             if oldPreview is not None:
-                path.splitext(oldPreview)[1]
-                path.join(location, toAdd.name + '_preview' + optype)
+                optype = path.splitext(oldPreview)[1]
+                newPreview = path.join(location, toAdd.name + '_preview' + optype)
                 copyfile(oldPreview, newPreview)
             #update game
             toAdd.setBoardPath(newBoard, False)
@@ -216,7 +216,7 @@ class Connector:
         self.__upload(toAdd, location)
 
         #good to go, jsonify and parse
-        self.__db.child(location).child(toAdd.name).set(toAdd.jsonify(True))
+        self.__db.child(location).child(toAdd.name).set(toAdd.jsonify(True), self.__user['idToken'])
     
     def __upload(self, toAdd: Union[Game, GameCollection], location: str):
         '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n

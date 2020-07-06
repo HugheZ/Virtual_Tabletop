@@ -85,9 +85,9 @@ class Connector:
             #the code has a few smells with sharing information, but similar issues have been open for years so we
             #will just have to deal with this.
             data = self.__fb.database().child(self.__location).get(self.__user['idToken']).val()
-
             #parse the data (must be as collection)
-            onlineData = GameCollection(self.__locationname, data)
+            if data is not None:
+                onlineData = GameCollection(self.__locationname, data)
         except Exception as e:
             err = e
             self.__data = None

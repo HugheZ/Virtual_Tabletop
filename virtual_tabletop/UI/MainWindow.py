@@ -385,8 +385,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
 
         #if game is not none, save
         if created is not None:
-            print(created)
-            #TODO
+            #parse into game
+            game = Game(created['name'], created['width'], created['height'], created['preview_image'], created['board'], True, False)
+            #create the game locally
+            try:
+                self.source.addToLocal(game)
+                #if config says to auto-upload, do so
+                config = None
+                with open('config.json', 'r') as f:
+                    config = json.load(f)
+                if config['auto_upload']:
+                    self.source.addToCloud(game)
+                #refresh
+                self.source.refresh(True)
+            except Exception as e:
+                self.showError(e)
     
     #TODO: slots for making new game collection
     

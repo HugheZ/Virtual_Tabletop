@@ -1,5 +1,5 @@
 import pyrebase, json, glob
-from os import path, mkdir
+from os import path, mkdir, makedirs
 from shutil import copyfile
 from virtual_tabletop.Data.Game import Game 
 from virtual_tabletop.Data.GameCollection import GameCollection
@@ -154,15 +154,20 @@ class Connector:
         '''
         #get human readable location
         if location is None:
-            location = self.getLocation()
+            location = path.join(self.__savedir, self.getLocation())
+            print(location)
         
         #if game or collection, save differently, else throw error
         if isinstance(toAdd, Game):
+            #create all directories if they don't exist
+            makedirs(location, exist_ok=True)
             #move images to local storage location, then save jsonified object
             oldBoard = toAdd.getBoardPath(False)
-            oldPreview = toAdd.getPreview(False)
-            newBoard = location + path.basename(oldBoard)
-            newPreview = location + path.basename(oldPreview)
+            oldPreview = toAdd.getPreviewPath(False)
+            obtype = path.splitext(oldBoard)[1]
+            optype = path.splitext(oldPreview)[1]
+            newBoard = path.join(location, toAdd.name + '_board' + obtype)
+            newPreview = path.join(location, toAdd.name + '_preview' + optype)
             #move
             copyfile(oldBoard, newBoard)
             copyfile(oldPreview, newPreview)
@@ -170,23 +175,23 @@ class Connector:
             toAdd.setBoardPath(newBoard, False)
             toAdd.setPreviewPath(newPreview, False)
             #save jsonified value
-            with open(location + toAdd.name + '.json', 'w') as f:
+            jsfpth = path.join(location, toAdd.name + '.json')
+            print(jsfpth)
+            with open(jsfpth, 'w+') as f:
                 json.dump(toAdd.jsonify(False), f)
-            #add the game to the list if location is current (either by set above or by given)
-            if location == self.getLocation():
-                self.__data.addGame(toAdd)
-                self.__updateWatchers()
         elif isinstance(toAdd, GameCollection):
             #save the collection as a folder in local directory, recurse for all games in collection
             #create directory
-            mkdir(location + toAdd.name)
+            direc = path.join(location, toAdd.name)
+            try:
+                mkdir(direc)
+            except FileExistsError:
+                pass
+            except:
+                raise
             #call save to all children
             for game in toAdd:
-                self.addToLocal(game, location + toAdd.name)
-            #if location is current (either by set above or given) add to list
-            if location == self.getLocation():
-                self.__data.addGame(toAdd)
-                self.__updateWatchers()
+                self.addToLocal(game, direc)
         else:
             raise TypeError('Invalid object type for DB save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
     
@@ -226,8 +231,8 @@ class Connector:
             self.__storage.child(location).child(boardPath).put(toAdd.getBoardPath(False), self.__user['idToken'])
             self.__storage.child(location).child(previewPath).put(toAdd.getPreviewPath(False), self.__user['idToken'])
             #after push, retain new http endpoint to pull images from
-            boardUrl = self.__storage.child(location).child(boardPath).get_url()
-            previewUrl = self.__storage.child(location).child(previewPath).get_url()
+            boardUrl = self.__storage.child(location).child(boardPath).get_url(self.__user['idToken'])
+            previewUrl = self.__storage.child(location).child(previewPath).get_url(self.__user['idToken'])
             toAdd.setBoardPath(boardUrl, True)
             toAdd.setPreviewPath(previewUrl, True)
 

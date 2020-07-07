@@ -238,6 +238,10 @@ class Connector:
 
         #good to go, jsonify and parse
         payload = toAdd.jsonify(True) if isinstance(toAdd, Game) else toAdd.jsonify()
+        #in order to ensure that all game collections are updated in the cloud, we will need to prepare them ahead of time
+        #payload = self.__preparePayload(payload, toAdd.name)
+        #self.__db.child().update(payload, self.__user['idToken'])
+        #TODO: test to see if recursive update works for uploading game and all non-existant collections
         self.__db.child(location).child(toAdd.name).set(payload, self.__user['idToken'])
     
     def __uploadImages(self, toAdd: Union[Game, GameCollection], location: str):
@@ -270,6 +274,27 @@ class Connector:
         else:
             raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
 
+    def __preparePayload(self, payload: dict, payloadName: str):
+        '''Prepares the given payload for updating by appending information about containing game collections\n
+        payload: the payload to append to the containing new payload's games\n
+        payloadName: the named ID location for this payload to be placed
+        '''
+        data = {
+            'games/'+payloadName: payload
+        }
+        #copy location
+        loc = self.getLocation().split('/')
+        #iterate over location string, removing used names and 'games/' each time
+        for i, elem in reversed(list(enumerate(loc))):
+            #add type, name, and data
+            data['name'] = elem
+            data['type'] = 'collection'
+            #if we are on top level, just add coll name, else add games preface
+            trail = elem if i == 0 else 'games/'+elem
+            data = {trail: data}
+
+
+        return data
 
     #############################################################
     ##                    WATCHER FUNCTIONS                    ##

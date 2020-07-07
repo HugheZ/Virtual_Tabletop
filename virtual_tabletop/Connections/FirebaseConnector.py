@@ -44,6 +44,10 @@ class Connector:
         #set updators
         self.__watchers = []
     
+    #############################################################
+    ##                          LOGIN                          ##
+    #############################################################
+    
     def login(self, email: str, password: str):
         '''Logs into the linked DB and gets initial data\n
         email: the email used to log in\n
@@ -66,6 +70,10 @@ class Connector:
         '''Returns true if the current user is logged in, else false
         '''
         return self.__auth.current_user is not None and self.__user is not None
+    
+    #############################################################
+    ##                       NAVIGATION                        ##
+    #############################################################
     
     def getLocation(self):
         '''Gets the human-readable location for the currently loaded level
@@ -157,6 +165,10 @@ class Connector:
         self.__location += name + '/games'
         self.__locationname = name
         self._getLevel()
+    
+    #############################################################
+    ##                     UPLOAD/DOWNLOAD                     ##
+    #############################################################
 
     def addToLocal(self, toAdd: Union[Game, GameCollection], location: Optional[str] = None):
         '''Saves the game or game collection to the given location in local storage\n
@@ -222,13 +234,13 @@ class Connector:
             raise TypeError('Invalid object type for DB save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
 
         #pre-iterate through to push images to DB
-        self.__upload(toAdd, location)
+        self.__uploadImages(toAdd, location)
 
         #good to go, jsonify and parse
         payload = toAdd.jsonify(True) if isinstance(toAdd, Game) else toAdd.jsonify()
         self.__db.child(location).child(toAdd.name).set(payload, self.__user['idToken'])
     
-    def __upload(self, toAdd: Union[Game, GameCollection], location: str):
+    def __uploadImages(self, toAdd: Union[Game, GameCollection], location: str):
         '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n
         toAdd: the game/game collection to add\n
         location: the location to upload the board to\n
@@ -254,9 +266,14 @@ class Connector:
             #nothing to do for collections, iterate over each game with this name added to location
             loc = location + '/' + toAdd.name
             for game in toAdd:
-                self.__upload(game, loc)
+                self.__uploadImages(game, loc)
         else:
             raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+
+
+    #############################################################
+    ##                    WATCHER FUNCTIONS                    ##
+    #############################################################
     
     def watch(self, caller: Optional[object] = None, callback: Optional[Callable] = None):
         '''Observer-like function that updates the currently loaded DB data. All callbacks are called immediately upon addition.\n

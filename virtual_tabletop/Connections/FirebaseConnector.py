@@ -162,7 +162,7 @@ class Connector:
         '''Goes down in the DB hierarchy\n
         name: the new level to go down to
         '''
-        self.__location += name + '/games'
+        self.__location += name + '/games' if self.__location == '' else '/' + name + '/games'
         self.__locationname = name
         self._getLevel()
     
@@ -239,10 +239,9 @@ class Connector:
         #good to go, jsonify and parse
         payload = toAdd.jsonify(True) if isinstance(toAdd, Game) else toAdd.jsonify()
         #in order to ensure that all game collections are updated in the cloud, we will need to prepare them ahead of time
-        #payload = self.__preparePayload(payload, toAdd.name)
-        #self.__db.child().update(payload, self.__user['idToken'])
+        self.__sendPayload(payload, toAdd.name)
         #TODO: test to see if recursive update works for uploading game and all non-existant collections
-        self.__db.child(location).child(toAdd.name).set(payload, self.__user['idToken'])
+        #self.__db.child(location).child(toAdd.name).set(payload, self.__user['idToken'])
     
     def __uploadImages(self, toAdd: Union[Game, GameCollection], location: str):
         '''Uploads toAdd to the database, parsing all non-local games and securing a place in file storage for preview/board\n
@@ -274,27 +273,46 @@ class Connector:
         else:
             raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
 
-    def __preparePayload(self, payload: dict, payloadName: str):
+    def __sendPayload(self, payload: dict, payloadName: str):
         '''Prepares the given payload for updating by appending information about containing game collections\n
         payload: the payload to append to the containing new payload's games\n
         payloadName: the named ID location for this payload to be placed
         '''
-        data = {
-            'games/'+payloadName: payload
-        }
+        data = payload
         #copy location
         loc = self.getLocation().split('/')
-        #iterate over location string, removing used names and 'games/' each time
-        for i, elem in reversed(list(enumerate(loc))):
-            #add type, name, and data
-            data['name'] = elem
-            data['type'] = 'collection'
-            #if we are on top level, just add coll name, else add games preface
-            trail = elem if i == 0 else 'games/'+elem
-            data = {trail: data}
-
-
-        return data
+        #if loc is just [''], we are in the base location, so just set payload
+        if loc == ['']:
+            self.__db.child(payloadName).set(payload)
+        else:
+            #this variable holds if we found a game collection before base
+            atBase = False
+            #else, loop from deepest to shallowest level in db, checking for first existing collection. On exist, call set
+            while len(loc) > 0:
+                print(data)
+                print(loc)
+                if not self.__db.child('/games/'.join(loc)).shallow().get(self.__user['idToken']).val():
+                    #doesn't exist, add this game collection to data
+                    data = {
+                        'games': {
+                            payloadName: data
+                        },
+                        'name':loc[-1],
+                        'type':'collection'
+                    }
+                    payloadName = loc[-1]
+                    del loc[-1]
+                else:
+                    #this level exists, break and let update take place
+                    print('got to base')
+                    atBase = True
+                    break
+            #set the data at this level
+            #if we are at the base level, make a new collection, else we need to go through previous collections still in loc
+            print(atBase)
+            path = payloadName if not atBase else '/games/'.join(loc)+'/games/'+payloadName
+            print(path)
+            self.__db.child(path).set(data, self.__user['idToken'])
 
     #############################################################
     ##                    WATCHER FUNCTIONS                    ##

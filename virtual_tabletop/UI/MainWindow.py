@@ -193,6 +193,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile(parent=self.gamesList, game=game)
             t.loadSignal.connect(self.__game_selected)
+            t.upload_action.triggered.connect(partial(self.source.addToCloud, game, None))
             litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)

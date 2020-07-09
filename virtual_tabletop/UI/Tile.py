@@ -76,12 +76,14 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         online: True for online, False for not online
         '''
         self.cloudAvailable.setEnabled(online)
+        self.upload_action.setEnabled(not online)
 
     def setLocal(self, local:bool):
         '''Sets whether this game is local or not\n
         local: True for local, False for not local
         '''
         self.localAvailable.setEnabled(local)
+        self.download_action.setEnabled(not local)
 
     @QtCore.pyqtSlot()
     def __game_on_click(self):

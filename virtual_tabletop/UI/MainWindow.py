@@ -192,7 +192,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         for game in data:
             litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile(parent=self.gamesList, game=game)
-            t.loadSignal.connect(self.__game_selected)
+            t.loadSignal.connect(partial(self.__game_selected, game))
             t.upload_action.triggered.connect(partial(self.__upload, game, t))
             t.download_action.triggered.connect(partial(self.__download, game, t))
             t.delete_action.triggered.connect(partial(self.__delete, game, t))
@@ -214,6 +214,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
                 return
         except Exception:
             pass
+        #check config, see if we should download the image
+        config = {}
+        with open('config.json') as f:
+            config = json.load(f)
+        if config.get('store_on_download') and not game.local:
+            #config set to store on download and game is not local, so store it
+            #find the tile
+            t = None
+            def gen():
+                for i in range(self.gamesList.count()):
+                    widg = self.gamesList.itemWidget(self.gamesList.item(i))
+                    if widg.gameName.text() == game.name:
+                        yield widg
+            t = next(gen())
+            self.__download(game, t)
         #initialize subwindow
         label = QtWidgets.QLabel()
         subwin = QtWidgets.QMdiSubWindow()
@@ -307,17 +322,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
     ###########################################################
 
     @QtCore.pyqtSlot(str)
-    def __game_selected(self, gameSelected: str):
+    def __game_selected(self, gameSelected:Union[Game, GameCollection]):
         '''Slot defined to parrot signal from selected tile to the DB controller\n
         gameSelected: the game / game collection selected by the user
         '''
-        game = self.data.find(gameSelected)
         #if collection, go down to that collection
-        if type(game) == GameCollection:
-            self.source.goDown(game.name)
+        if type(gameSelected) == GameCollection:
+            self.source.goDown(gameSelected.name)
             self.toggleBack(True)
-        elif type(game) == Game: #else load that game
-            self.loadGame(game)
+        elif type(gameSelected) == Game: #else load that game
+            self.loadGame(gameSelected)
         else: raise Exception('Game selected was neither game or game collection')
     
     @QtCore.pyqtSlot()

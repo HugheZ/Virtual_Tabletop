@@ -195,6 +195,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             t.loadSignal.connect(self.__game_selected)
             t.upload_action.triggered.connect(partial(self.__upload, game, t))
             t.download_action.triggered.connect(partial(self.__download, game, t))
+            t.delete_action.triggered.connect(partial(self.__delete, game, t))
             litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)
@@ -450,6 +451,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             tile.setLocal(True)
         except Exception as e:
             self.showError(e)
+    
+    @QtCore.pyqtSlot()
+    def __delete(self, game:Game, tile:Tile):
+        '''Requests for confirmation of delete request for online, local, or both\n
+        game: the game to delete\n
+        tile: the UI Tile to flip availability messages
+        '''
+        items = []
+        if game.online: items.append('Online')
+        if game.local: items.append('Local')
+        if game.online and game.local: items.append('Both')
+        item, ok = QtWidgets.QInputDialog.getItem(self, 'Delete game', 'Delete game from...', items)
+
+        if ok and item:
+            print('Requested to delete ' + game.name + ' from ' + item)
+        #else do nothing, no deletion requested
+
+
+
 
 
     #############################################################

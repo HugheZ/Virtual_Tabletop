@@ -466,7 +466,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
 
         if ok and item:
             #deletion request with an item, get proper locality, call delete, refresh, and show any errors
-            local, online = True, True if item == 'Both' else True, False if item == 'Local' else False, True
+            (local, online) = (True, True) if item == 'Both' else (True, False) if item == 'Local' else (False, True)
             try:
                 self.source.delete(game, local, online)
                 self.source.refresh(True)

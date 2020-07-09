@@ -71,6 +71,18 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         else:
             raise Exception('Tiles only support loading {0} or {1} data, not {2}'.format(Game, GameCollection, type(game)))
     
+    def setOnline(self, online:bool):
+        '''Sets whether this game is online or not\n
+        online: True for online, False for not online
+        '''
+        self.cloudAvailable.setEnabled(online)
+
+    def setLocal(self, local:bool):
+        '''Sets whether this game is local or not\n
+        local: True for local, False for not local
+        '''
+        self.localAvailable.setEnabled(local)
+
     @QtCore.pyqtSlot()
     def __game_on_click(self):
         '''Handler for button slot that sends the information up

@@ -203,7 +203,7 @@ class Connector:
             #save jsonified value
             jsfpth = path.join(location, toAdd.name + '.json')
             with open(jsfpth, 'w+') as f:
-                json.dump(toAdd.jsonify(False), f)
+                json.dump(toAdd.jsonify(False), f, indent=3)
         elif isinstance(toAdd, GameCollection):
             #save the collection as a folder in local directory, recurse for all games in collection
             #create directory
@@ -241,7 +241,7 @@ class Connector:
             payload = toAdd.jsonify(False)
 
             with open(path.join(location, toAdd.name+'.json'), 'w+') as f:
-                json.dump(payload, f)
+                json.dump(payload, f, indent=3)
 
         elif isinstance(toAdd, GameCollection):
             #save the collection as a folder in local directory, recurse for all games in collection

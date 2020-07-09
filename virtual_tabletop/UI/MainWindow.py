@@ -114,7 +114,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
                 config = json.load(f)
             if config.get('storecreds', False):
                 with open('credentials.json', 'w') as w:
-                    json.dump({"email":email, "password":password}, w)
+                    json.dump({"email":email, "password":password}, w, indent=3)
         except Exception as e:
             #on login error, get local info and re-enable login button
             self.showError(e)
@@ -140,7 +140,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             config = json.load(f)
         config['key_path'] = newKey
         with open('config.json', 'w') as f:
-            json.dump(config, f)
+            json.dump(config, f, indent=3)
         #rebase source
         del self.source
         #get credentials if needed
@@ -353,7 +353,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         dlg.exec_()
         #modality stopped, save config
         with open('config.json', 'w') as f:
-            json.dump(config, f)
+            json.dump(config, f, indent=3)
     
     @QtCore.pyqtSlot()
     def __log_out_confirm(self):

@@ -25,7 +25,7 @@ def launch():
                 "store_on_download":False,
                 "login_on_startup":False
             }
-            json.dump(config, f)
+            json.dump(config, f, indent=3)
 
     #open window
     window = MainWindow()

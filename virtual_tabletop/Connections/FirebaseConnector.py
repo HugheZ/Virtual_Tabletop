@@ -1,6 +1,6 @@
 import pyrebase, json, glob, requests
-from os import path, mkdir, makedirs, listdir
-from shutil import copyfile
+from os import path, mkdir, makedirs, listdir, remove
+from shutil import copyfile, rmtree
 from virtual_tabletop.Data.Game import Game 
 from virtual_tabletop.Data.GameCollection import GameCollection
 from weakref import ref, WeakMethod
@@ -379,6 +379,54 @@ class Connector:
             path = payloadName if not atBase else '/games/'.join(loc)+'/games/'+payloadName
             print(path)
             self.__db.child(path).set(data, self.__user['idToken'])
+    
+    def delete(self, toDel: Union[Game, GameCollection], local:bool=False, online:bool=False, localLocation:Optional[str]=None, onlineLocation:Optional[str]=None):
+        '''Deletes the specified game from the connected database and local storage location\n
+        toDel: the game/collection to delete\n
+        local: delete from local storage?\n
+        online: delete from online storage?\n
+        localLocation: location to delete from locally\n
+        onlineLocation: location to delete from online\n
+        NOTE: assumes complete deletion for collections, similar to rm -r
+        '''
+        #delete from local if requested
+        if local:
+            #get location if not given
+            if localLocation is None:
+               localLocation = self.getLocation()
+
+            #if game, remove images and json, else if collection delete directory
+            if isinstance(toDel, Game):
+                #pull board paths and location from given board, delete those images
+                remove(toDel.getBoardPath(False))
+                remove(toDel.getPreviewPath(False))
+                #remove local json object
+                remove(path.join(localLocation, toDel.name+'.json'))
+                #update game's values
+                toDel.setBoardPath(None, False)
+                toDel.setPreviewPath(None, False)
+                toDel.local = False
+            elif isinstance(toDel, GameCollection):
+                #delete the directory
+                rmtree(path.join(localLocation, toDel.name))
+                #TODO: set all children to not be local (but is it needed, if godown will set this?)
+            else:
+                raise TypeError('Invalid object type for local deletion:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toDel)))
+        elif online:
+            #deletion from online requested
+            #get location if not given
+            if onlineLocation is None:
+                onlineLocation = self.__location
+            #in either case, remove it from the DB and from storage
+            self.__db.child(onlineLocation,toDel.name).remove(self.__user['idToken'])
+            self.__storage.child(onlineLocation).delete(toDel.name)
+            #TODO: need to check this, error reports say you need a service account to delete
+
+        
+        #if both online and local, remove this game from data
+        if online and local and toDel in self.__data:
+            self.__data.remove(toDel)
+
 
     #############################################################
     ##                    WATCHER FUNCTIONS                    ##

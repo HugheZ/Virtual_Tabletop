@@ -59,6 +59,13 @@ class GameCollection():
             print(str(e))
             return None
     
+    def remove(self, game:Union[Game, 'GameCollection']):
+        '''Removes the specified game from this game collection\n
+        game: the game/collection to remove\n
+        NOTE: raises exception if not in this collection
+        '''
+        self.games.remove(game)
+    
     def __getitem__(self, key):
         '''Overrides the [] operator'''
         return self.games[key]

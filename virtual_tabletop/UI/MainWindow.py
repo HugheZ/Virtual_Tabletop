@@ -465,7 +465,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
         item, ok = QtWidgets.QInputDialog.getItem(self, 'Delete game', 'Delete game from...', items)
 
         if ok and item:
-            print('Requested to delete ' + game.name + ' from ' + item)
+            #deletion request with an item, get proper locality, call delete, refresh, and show any errors
+            local, online = True, True if item == 'Both' else True, False if item == 'Local' else False, True
+            try:
+                self.source.delete(game, local, online)
+                self.source.refresh(True)
+            except Exception as e:
+                self.showError(e)
         #else do nothing, no deletion requested
 
 

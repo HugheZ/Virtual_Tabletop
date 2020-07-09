@@ -29,9 +29,9 @@ To get an API key for your database, go to Home > Add app > Web on your Firebase
 
 # TODO
 These are the outstanding tasks going forward that must be completed:
-1. Enable downloading cloud boards for local storage
-2. Enable auto-downloading by process outlined in configuration
-3. Save config changes, reload local boards on save directory change
-4. Style (especially tiles, which should have drop shadows)
-5. Ensure app functionality if no Firebase is linked (resort to only local boards)
-6. Additional catches for making game of same name in creation
+1. Reload local boards on save directory change
+2. Style (especially tiles, which should have drop shadows)
+3. Ensure app functionality if no Firebase is linked (resort to only local boards)
+4. Additional catches for making game of same name in creation
+5. Cleanup on creation/deletion failures
+6. Reduce children get from DB. Can't store whole DB on a low-ram system

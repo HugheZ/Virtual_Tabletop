@@ -103,12 +103,14 @@ class GameCollection():
         
         return ret + ']'
     
-    def jsonify(self):
-        '''Returns a json representation of this game collection for saving purposes'''
+    def jsonify(self, online:bool = True):
+        '''Returns a json representation of this game collection for saving purposes\n
+        online: Should the json represent urls? Else prepare with local paths
+        '''
         return {
         "type": "collection",
         "name": self.name,
-        "games": {game.name : game.jsonify() for game in self.games}
+        "games": {game.name : game.jsonify(online) for game in self.games}
         }
         
     def merge(self, other:'GameCollection'):

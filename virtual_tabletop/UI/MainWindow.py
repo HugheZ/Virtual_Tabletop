@@ -193,7 +193,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             litem = QtWidgets.QListWidgetItem(self.gamesList)
             t = Tile(parent=self.gamesList, game=game)
             t.loadSignal.connect(self.__game_selected)
-            t.upload_action.triggered.connect(partial(self.source.addToCloud, game, None))
+            t.upload_action.triggered.connect(partial(self.__upload, game, t))
+            t.download_action.triggered.connect(partial(self.__download, game, t))
             litem.setSizeHint(t.maximumSize())
             self.gamesList.addItem(litem)
             self.gamesList.setItemWidget(litem, t)
@@ -398,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
                 with open('config.json', 'r') as f:
                     config = json.load(f)
                 if config['auto_upload']:
-                    self.source.addToCloud(game)
+                    self.source.upload(game)
                 #refresh
                 self.source.refresh(True)
             except Exception as e:
@@ -420,12 +421,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
                 with open('config.json', 'r') as f:
                     config = json.load(f)
                 if config['auto_upload']:
-                    self.source.addToCloud(coll)
+                    self.source.upload(coll)
                 #refresh
                 self.source.refresh(True)
             except Exception as e:
                 self.showError(e)
     
+    @QtCore.pyqtSlot()
+    def __upload(self, game:Game, tile: Tile):
+        '''Uploads the given game selected and sets the appropriate tile to be online\n
+        game: the game to upload\n
+        tile: the UI Tile to flip availability messages
+        '''
+        try:
+            self.source.upload(game)
+            tile.setOnline(True)
+        except Exception as e:
+            self.showError(e)
+    
+    @QtCore.pyqtSlot()
+    def __download(self, game:Game, tile: Tile):
+        '''Downloads the given game selected and sets the appropriate tile to be local\n
+        game: the game to download\n
+        tile: the UI Tile to flip availability messages
+        '''
+        try:
+            self.source.download(game)
+            tile.setLocal(True)
+        except Exception as e:
+            self.showError(e)
 
 
     #############################################################

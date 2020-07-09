@@ -1,4 +1,4 @@
-import pyrebase, json, glob
+import pyrebase, json, glob, requests
 from os import path, mkdir, makedirs, listdir
 from shutil import copyfile
 from virtual_tabletop.Data.Game import Game 
@@ -178,7 +178,7 @@ class Connector:
         #get human readable location
         if location is None:
             location = path.join(self.__savedir, self.getLocation())
-        
+
         #if game or collection, save differently, else throw error
         if isinstance(toAdd, Game):
             #create all directories if they don't exist
@@ -218,16 +218,47 @@ class Connector:
             for game in toAdd:
                 self.addToLocal(game, direc)
         else:
-            raise TypeError('Invalid object type for DB save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+            raise TypeError('Invalid object type for local save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
     
-    def addToCloud(self, toAdd: Union[Game, GameCollection], location: Optional[str] = None):
-        '''Adds a game or game collection to the given location in the cloud:\n
+    def download(self, toAdd: Union[Game, GameCollection], location: Optional[str] = None):
+        '''Downloads a game or game collection to the given location from the cloud\n
+        toAdd: the game or game collection to pull to local\n
+        location: the local file location to add to, defaults to current local location
+        '''
+        #get human readable location
+        if location is None:
+            location = path.join(self.__savedir, self.getLocation())
+        
+        #if game or collection, save differently, else throw error
+        if isinstance(toAdd, Game):
+            #create all directories if they don't exist
+            makedirs(location, exist_ok=True)
+            
+            #download images
+            self.__downloadImages(toAdd, location)
+
+            #good to go, jsonify and parse
+            payload = toAdd.jsonify(False)
+
+            with open(path.join(location, toAdd.name+'.json'), 'w+') as f:
+                json.dump(payload, f)
+
+        elif isinstance(toAdd, GameCollection):
+            #save the collection as a folder in local directory, recurse for all games in collection
+            #create directory
+            #TODO
+            pass
+        else:
+            raise TypeError('Invalid object type for local save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+    
+    def upload(self, toAdd: Union[Game, GameCollection], location: Optional[str] = None):
+        '''Uploads a game or game collection to the given location in the cloud:\n
         toAdd: a game or game collection to put into the DB\n
         location: the location to add to, defaults to current location
         '''
         #default location
         if location is None:
-            location = self.__location#.replace('games/','')
+            location = self.__location
         
         #parse for valid object
         if type(toAdd) not in [Game, GameCollection]:
@@ -237,7 +268,7 @@ class Connector:
         self.__uploadImages(toAdd, location)
 
         #good to go, jsonify and parse
-        payload = toAdd.jsonify(True) if isinstance(toAdd, Game) else toAdd.jsonify()
+        payload = toAdd.jsonify(True)
         #in order to ensure that all game collections are updated in the cloud, we will need to prepare them ahead of time
         self.__sendPayload(payload, toAdd.name)
         #TODO: test to see if recursive update works for uploading game and all non-existant collections
@@ -267,11 +298,46 @@ class Connector:
 
         elif type(toAdd) == GameCollection:
             #nothing to do for collections, iterate over each game with this name added to location
-            loc = location + '/' + toAdd.name
+            loc = location + '/' + toAdd.name + '/games'
             for game in toAdd:
                 self.__uploadImages(game, loc)
         else:
             raise TypeError('Invalid object type for image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+    
+    def __downloadImages(self, toAdd: Union[Game, GameCollection], location: str):
+        '''Downloads toAdd to local storage, parsing all local games and securing a place in file storage for preview/board\n
+        toAdd: the game/game collection to add\n
+        location: the location to upload the board to\n
+        NOTE: this is a recursive method that will iterate through game collections, thus callable with collections or single games
+        '''
+        if type(toAdd) == Game:
+            boardUrl = toAdd.getBoardPath()
+            previewUrl = toAdd.getPreviewPath()
+            boardResp = requests.get(boardUrl)
+            previewResp = requests.get(previewUrl)
+            #parse content types and get image binary
+            boardImg = boardResp.content
+            board_type = boardResp.headers['content-type'].split('/')[-1]
+            previewImg = previewResp.content
+            prev_type = previewResp.headers['content-type'].split('/')[-1]
+            #save to local location
+            boardPath = path.join(location, toAdd.name + '_board.' + board_type)
+            previewPath = path.join(location, toAdd.name + '_preview.' + prev_type)
+            with open(boardPath, 'wb+') as f:
+                f.write(boardImg)
+            with open(previewPath, 'wb+') as f:
+                f.write(previewImg)
+            #set toAdd to updated values
+            toAdd.setBoardPath(boardPath, False)
+            toAdd.setPreviewPath(previewPath, False)
+        elif type(toAdd) == GameCollection:
+            #nothing to do for collections, iterate over each game with this name added to location
+            loc = location + '/' + toAdd.name
+            for game in toAdd:
+                self.__downloadImages(game, loc)
+        else:
+            raise TypeError('Invalid object type for local image storage save:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toAdd)))
+
 
     def __sendPayload(self, payload: dict, payloadName: str):
         '''Prepares the given payload for updating by appending information about containing game collections\n

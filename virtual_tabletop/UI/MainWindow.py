@@ -4,6 +4,7 @@ from virtual_tabletop.UI.Settings import Settings
 from virtual_tabletop.UI.Login import LoginDialog
 from virtual_tabletop.UI.OpenGame import OpenGame
 from virtual_tabletop.UI.NewGame import NewGame
+from virtual_tabletop.UI.BoardWindow import BoardWindow
 from PyQt5 import QtWidgets, QtCore, QtGui
 from virtual_tabletop.Data.GameCollection import GameCollection
 from virtual_tabletop.Data.Game import Game
@@ -231,9 +232,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             self.__download(game, t)
         #initialize subwindow
         label = QtWidgets.QLabel()
-        subwin = QtWidgets.QMdiSubWindow()
+        subwin = BoardWindow()
         subwin.setWidget(label)
-        subwin.setWindowTitle(game.name)
+        #subwin.setWindowTitle(game.name)
         #scale image
         (x,y) = self.__calculateSize(game.width, game.height)
         label.resize(x,y)
@@ -249,7 +250,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             pixm.loadFromData(data)
             label.setPixmap(pixm.scaled(label.size()))
         #add to boards
-        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        self.gamesArea.addSubWindow(subwin, QtCore.Qt.CustomizeWindowHint | QtCore.Qt.FramelessWindowHint)
         #show
         subwin.show()
         #link subwindow with local games list

@@ -123,6 +123,7 @@ class Game():
         else:
             if self.__preview_url not in ["", None]:
                 ret = requests.get(self.__preview_url).content
+                print(self.__preview_url)
         self.__preview = ret
 
     def getPreview(self):

@@ -393,13 +393,16 @@ class Connector:
         if local:
             #get location if not given
             if localLocation is None:
-               localLocation = self.getLocation()
+               localLocation = path.join(self.__savedir,self.getLocation())
 
             #if game, remove images and json, else if collection delete directory
             if isinstance(toDel, Game):
                 #pull board paths and location from given board, delete those images
                 remove(toDel.getBoardPath(False))
-                remove(toDel.getPreviewPath(False))
+                #don't always have a preview, delete if so
+                ppth = toDel.getPreviewPath(False)
+                if ppth:
+                    remove(ppth)
                 #remove local json object
                 remove(path.join(localLocation, toDel.name+'.json'))
                 #update game's values
@@ -412,19 +415,23 @@ class Connector:
                 #TODO: set all children to not be local (but is it needed, if godown will set this?)
             else:
                 raise TypeError('Invalid object type for local deletion:\nExpected {0} or {1} but received {2}'.format(Game, GameCollection, type(toDel)))
-        elif online:
+        if online:
             #deletion from online requested
             #get location if not given
             if onlineLocation is None:
                 onlineLocation = self.__location
             #in either case, remove it from the DB and from storage
             self.__db.child(onlineLocation,toDel.name).remove(self.__user['idToken'])
-            self.__storage.child(onlineLocation).delete(toDel.name)
-            #TODO: need to check this, error reports say you need a service account to delete
+            try:
+                self.__storage.child(onlineLocation).delete(toDel.name)
+                #TODO: need to check this, error reports say you need a service account to delete
+            except:
+                pass
+            toDel.online = False
 
         
         #if both online and local, remove this game from data
-        if online and local and toDel in self.__data:
+        if not toDel.online and not toDel.local and toDel in self.__data:
             self.__data.remove(toDel)
 
 

@@ -51,10 +51,12 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         if type(game) == Game:
             self.gameName.setText(game.name)
             img = game.getPreview()
-            if img:
+            if img is not None and img != '':
                 pm = QtGui.QPixmap()
                 pm.loadFromData(img)
                 self.gameImage.setPixmap(pm)
+            else:
+                self.gameImage.setPixmap(QtGui.QPixmap(":/icons/not-found.png"))
             self.localAvailable.setEnabled(game.local)
             self.cloudAvailable.setEnabled(game.online)
             #set actions available depending on location
@@ -90,3 +92,17 @@ class Tile(QtWidgets.QWidget, Ui_Tile):
         '''Handler for button slot that sends the information up
         '''
         self.loadSignal.emit(self.gameName.text())
+    
+    # def paintEvent(self, ev):
+    #     paint = QtGui.QPainter(self)
+    #     shadow = QtGui.QPainter(self)
+    #     shadow.begin(self)
+    #     paint.begin(self)
+    #     #grad = QtGui.QLinearGradient(QtCore.QRectF(self.rect()).bottomLeft(), QtCore.QRectF(self.rect()).topRight())
+    #     #grad.setColorAt(0.0, QtCore.Qt.black)
+    #     #grad.setColorAt(.2, QtCore.Qt.gray)
+    #     #shadow.setBrush(grad)
+    #     paint.drawRoundedRect(self.rect() - QtCore.QMargins(1, 1, 1, 1), 15.0, 15.0)
+    #     shadow.drawLine(self.rect().bottomRight() - QtCore.QPoint(20, 0), self.rect().bottomLeft() + QtCore.QPoint(20, 0))
+    #     paint.end()
+    #     shadow.end()

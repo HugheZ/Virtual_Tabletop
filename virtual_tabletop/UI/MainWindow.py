@@ -485,6 +485,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VTTMainWindow):
             try:
                 self.source.delete(game, local, online)
                 self.source.refresh(True)
+            except AttributeError as e: #if is our attribute error, show the error and refresh
+                self.showError(e)
+                self.source.refresh(True)
             except Exception as e:
                 self.showError(e)
         #else do nothing, no deletion requested

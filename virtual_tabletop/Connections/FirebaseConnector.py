@@ -389,6 +389,7 @@ class Connector:
         onlineLocation: location to delete from online\n
         NOTE: assumes complete deletion for collections, similar to rm -r
         '''
+        delERR = None
         #delete from local if requested
         if local:
             #get location if not given
@@ -424,15 +425,19 @@ class Connector:
             self.__db.child(onlineLocation,toDel.name).remove(self.__user['idToken'])
             try:
                 self.__storage.child(onlineLocation).delete(toDel.name)
-                #TODO: need to check this, error reports say you need a service account to delete
+                #FIXME: need to check this, error reports say you need a service account to delete
             except:
-                pass
+                delERR = AttributeError("Deletion of images from DB failed.\nThis operation is only supported when signed-in using a service account. Please follow-up file deletion manually in your linked DB.")
             toDel.online = False
 
         
         #if both online and local, remove this game from data
         if not toDel.online and not toDel.local and toDel in self.__data:
             self.__data.remove(toDel)
+        
+        #raise the online image deletion error after everything is fixed
+        if delERR is not None:
+            raise delERR
 
 
     #############################################################

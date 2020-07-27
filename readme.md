@@ -1,6 +1,8 @@
 # Virtual Tabletop
 A simple interface for virtualizing game boards and displaying on a table monitor.
 
+<img src="models/table.png?raw=true">
+
 # Purpose
 This application is intended to interface with an off-site database to download and display user-created game boards onto television-integrated tables. This allows equipped tables to facilitate gameplay without requiring physical game pieces or boards.
 

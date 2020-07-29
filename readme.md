@@ -1,6 +1,8 @@
 # Virtual Tabletop
 A simple interface for virtualizing game boards and displaying on a table monitor.
 
+<img src="models/table.png?raw=true">
+
 # Purpose
 This application is intended to interface with an off-site database to download and display user-created game boards onto television-integrated tables. This allows equipped tables to facilitate gameplay without requiring physical game pieces or boards.
 
@@ -26,6 +28,13 @@ For assistance on setting up a Firebase database and acquiring API keys, check t
 * Pyrebase API: https://github.com/thisbejim/Pyrebase
 
 To get an API key for your database, go to Home > Add app > Web on your Firebase console. Follow the instructions and copy your key.
+
+# Recommended Products
+The following products are what I used to construct my virtual tabletop. The included render was scaled to fit the included TV, but you may adapt your table to however you see fit. For a 6'x4' table, I used:
+
+* [32" 720p television](https://www.bestbuy.com/site/insignia-32-class-led-720p-hdtv/6311202.p?skuId=6311202)
+* [7" control monitor](https://www.amazon.com/Longruner-Raspberry-Display-1024x600-Protective/dp/B07S74MP36)
+* [RPI-compatible KBM combo](https://www.amazon.com/Rii-K22-Multimedia-Rechargable-Raspberry/dp/B07KPVZ1Y4)
 
 # TODO
 These are the outstanding tasks going forward that must be completed:
